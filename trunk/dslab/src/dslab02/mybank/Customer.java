@@ -1,4 +1,4 @@
-package dslab02;
+package dslab02.mybank;
 
 import java.util.Random;
 

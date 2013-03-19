@@ -1,6 +1,8 @@
-package dslab02;
+package dslab02.mybank;
 
 import java.util.concurrent.Semaphore;
+
+import dslab02.BoundedBuffer;
 
 public class Bank {
 	double money;

@@ -1,4 +1,4 @@
-package dslab02;
+package dslab02.mybank;
 
 public class Request {
 	int clientId;
