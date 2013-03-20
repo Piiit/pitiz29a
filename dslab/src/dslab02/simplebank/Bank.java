@@ -52,7 +52,7 @@ public class Bank {
 		 * If I have waited for a not available amount it means that a certain amount has been
 		 * given back to the bank.
 		 * 
-		 * I check id there is someone in the queue that can be eligible for the loan:
+		 * I check if there is someone in the queue that can be eligible for the loan:
 		 * if so I pass him the mutex. 
 		 */
 		if (!waited || !clientWaiting()) {

@@ -1,21 +1,14 @@
 package dslab02.mybank;
 
+import java.util.concurrent.Semaphore;
+
 public class Request {
-	int clientId;
 	double amount;
+	Semaphore amountMutex;
 	
-	public Request(int clientId, double amount) {
-		super();
-		this.clientId = clientId;
+	public Request(double amount) {
 		this.amount = amount;
-	}
-
-	public int getClientId() {
-		return clientId;
-	}
-
-	public void setClientId(int clientId) {
-		this.clientId = clientId;
+		amountMutex = new Semaphore(0);
 	}
 
 	public double getAmount() {
@@ -24,6 +17,14 @@ public class Request {
 
 	public void setAmount(double amount) {
 		this.amount = amount;
+	}
+	
+	public void acquire() throws InterruptedException {
+		amountMutex.acquire();
+	}
+	
+	public void release() {
+		amountMutex.release();
 	}
 
 }
