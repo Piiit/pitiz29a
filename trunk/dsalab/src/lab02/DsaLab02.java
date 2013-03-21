@@ -4,7 +4,7 @@ import tools.ArrayUtility;
 
 public class DsaLab02 {
 
-	private final static int REPEATS = 3;
+	private final static int REPEATS = 10;
 	private final static int POWEROF = 4;
 	
 	public static void main(String[] args) {
@@ -45,7 +45,7 @@ public class DsaLab02 {
 		}
 		
 		try {
-			for(int i = 0; i <= POWEROF; i++) {
+			for(int i = 0; i <= POWEROF+2; i++) {
 				System.out.print("java.util.Arrays.sort: No. of elements = " + (int)Math.pow(10, i));
 				for(int times = 0; times < REPEATS; times++) {
 					A = ArrayUtility.createRandomArray((int)Math.pow(10, i), 0, 1000);
