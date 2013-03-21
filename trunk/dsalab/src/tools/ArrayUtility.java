@@ -1,5 +1,8 @@
 package tools;
 
+import java.math.BigInteger;
+import java.util.Random;
+
 public class ArrayUtility {
     
     public static int findMax(int[] A) throws Exception {
@@ -114,8 +117,26 @@ public class ArrayUtility {
     	return array;
     }
     
+    public static BigInteger[] createRandomArrayBigInt(int size, int maxBits) throws Exception {
+    	if(size < 1) {
+    		throw new Exception("Size must be >= 1");
+    	}
+    	
+    	BigInteger[] array = new BigInteger[size];
+    	
+    	for(int i = 0; i < size; i++) {
+    		array[i] = getRandomBigInt(maxBits);
+    	}
+    	
+    	return array;
+    }
+    
     public static int getRandomInt(int min, int max) {
     	return (int)(Math.random() * (max - min + 1) + min);
+    }
+    
+    public static BigInteger getRandomBigInt(int bits) {
+    	return new BigInteger(bits, new Random());
     }
     
     public static int[][] createRandomMatrix(int rows, int cols, int min, int max) throws Exception {
