@@ -11,7 +11,7 @@ public class Citizen extends Thread {
 	}
 
 	public void run() {
-    	System.out.println(this + " arrived!");
+//    	System.out.println(this + " arrived!");
     	try {
 			Thread.sleep((new Random()).nextInt(1000));
 			office.enterRoom(this);
