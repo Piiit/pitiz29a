@@ -6,7 +6,7 @@ public class Citizen extends Thread implements Comparable<Citizen> {
 	
 	private Office office;
 	private boolean isMale;
-	private int age = 30;
+	private int age;
 	
     public Citizen(Office office, boolean isMale, int age) {
 		this.office = office;
@@ -17,9 +17,9 @@ public class Citizen extends Thread implements Comparable<Citizen> {
 	public void run() {
     	System.out.println(this + " arrived!");
     	try {
-			Thread.sleep((new Random()).nextInt(1000));
+			Thread.sleep((new Random()).nextInt(100));
 			office.enterRoom(this);
-			Thread.sleep((new Random()).nextInt(2000) + 1000);
+			Thread.sleep((new Random()).nextInt(100));
 			office.leaveRoom(this);
 		} catch (InterruptedException e) {
 			e.printStackTrace();
@@ -30,14 +30,42 @@ public class Citizen extends Thread implements Comparable<Citizen> {
 	public String toString() {
 		return age + " year old " + (isMale ? "male" : "female") + " citizen with id " + getId();
 	}
-
+	
+	
 	@Override
 	public int compareTo(Citizen o) {
-		if(age < o.age) {
-			return -1;
-		} 
-		if(age > o.age) {
-			return 1;
+		if(isMale) {
+			if(o.isMale) {
+				if(age > 60 && o.age <= 60) {
+					return 1;
+				} 
+				if(age <= 60 && o.age > 60) {
+					return -1;
+				}
+			} else {
+				if(age > 60 && o.age <= 50) {
+					return 1;
+				} 
+				if(o.age > 50) {
+					return -1;
+				}
+			}
+		} else {
+			if(o.isMale) {
+				if(age > 50) {
+					return 1;
+				} 
+				if(age <= 50 && o.age > 60) {
+					return -1;
+				}
+			} else {
+				if(age > 50 && o.age <= 50) {
+					return 1;
+				} 
+				if(age <= 50 && o.age > 50) {
+					return -1;
+				}
+			}
 		}
 		return 0;
 	}

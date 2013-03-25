@@ -4,10 +4,10 @@ import java.util.Random;
 
 public class Main {
 	
-	private static final int MAXOFFICECAPACITY = 10;
-	private static final int BRANCHCAPACITY = 3;
+	private static final int MAXOFFICECAPACITY = 15;
+	private static final int BRANCHCAPACITY = 5;
 	private static final int EMPLOYEECAPACITY = 1;
-	private static final int NUMBEROFCLIENTS = 1000;
+	private static final int NUMBEROFCLIENTS = 100;
 	
 
 	public static void main(String[] args) throws Exception {
