@@ -1,42 +1,43 @@
 package assignment04;
 
+import java.util.ArrayList;
+
+import tools.Algorithm;
 import tools.AlgorithmComparison;
 import tools.ArrayUtility;
 
 public class SortTest {
 	
-	private final static int REPEATS = 3;
-	private final static int MAXELEMENTS = 10000;
+	private final static int REPEATS = 5;
+	private final static int MAXELEMENTS = 100000;
 
 	public static void main(String args[]) throws Exception {
 		
 		int[] A;
 		
-		QuickSort quickSort = new QuickSort();
-		HybridQuickSort hybridQuickSort = new HybridQuickSort(3);
-
-		AlgorithmComparison algComparison = new AlgorithmComparison(quickSort, hybridQuickSort);
-		algComparison.printHeader();
-		
-		try {
-			boolean done = false;
-			int elements = 5;
-			while(!done) {
-				elements = elements * 2;
-				if (elements > MAXELEMENTS) {
-					elements = MAXELEMENTS;
-					done = true;
+		for(int k = 100; k <= 2500; k+=100) {
+			ArrayList<Algorithm> algorithms = new ArrayList<Algorithm>();
+			algorithms.add(new QuickSort());
+			algorithms.add(new HybridQuickSort(k));
+	
+			AlgorithmComparison algComparison = new AlgorithmComparison(algorithms);
+			algComparison.printHeader();
+			
+			try {
+				boolean done = false;
+				int elements = k*10;
+				while(!done) {
+					elements = elements * 2;
+					if (elements > MAXELEMENTS) {
+						elements = MAXELEMENTS;
+						done = true;
+					}
+					A = ArrayUtility.createRandomArray(elements, 0, 100000);
+					algComparison.run(A, REPEATS);
 				}
-				A = ArrayUtility.createRandomArray(elements, 0, 100000);
-				for(int k = 1; k <= 25; k++) {
-					quickSort.setArray(ArrayUtility.copyArray(A));
-					hybridQuickSort.setArray(ArrayUtility.copyArray(A));
-					hybridQuickSort.setK(k);
-					algComparison.run(REPEATS);
-				}
-			}
-		} catch (Exception e1) {
-			e1.printStackTrace();
-		}	
+			} catch (Exception e1) {
+				e1.printStackTrace();
+			}	
+		}
 	}
 }
