@@ -29,7 +29,7 @@ public class Client {
 			
 			String line = "";
 			boolean done = false;
-			while(!done && !socket.isClosed() && line != null) {
+			while(!done && !socket.isClosed()) {
 				try {
 					line = input.readLine();
 					output.println(line);
@@ -43,10 +43,12 @@ public class Client {
 			e.printStackTrace();
 		} finally {
 			try {
-				System.out.println("Connection closed by foreign host!");
+				System.out.println("Closing connection.");
 				output.close();
 				input.close();
-				socket.close();
+				if(!socket.isClosed()) {
+					socket.close();
+				}
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
