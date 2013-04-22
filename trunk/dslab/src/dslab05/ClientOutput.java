@@ -23,12 +23,14 @@ public class ClientOutput extends Thread {
 		
 	    String line = "";
 	    try {
-	    	while (line != null) {
+	    	while (!socket.isClosed()) {
 	    		line = input.readLine();
-	    		System.out.println(line);
+	    		if(line != null) {
+	    			System.out.println(line);
+	    		}
 	    	}
 	    } catch (IOException e) {
-	    	System.out.println("Closing client output...");
+	    	System.out.println("Closing client output.");
 	    }
 		try {
 			input.close();
