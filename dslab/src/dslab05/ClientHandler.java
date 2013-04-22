@@ -53,6 +53,7 @@ public class ClientHandler extends Thread {
 		}
 		
 		output.println("!!! What's your name?");
+		boolean done = false;
 		String line = "";
 		do {
 			try {
@@ -60,35 +61,42 @@ public class ClientHandler extends Thread {
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
-		} while (line.length() == 0);
+			if (line.length() == 0) {
+				output.println("This name is too short!");
+			} else if (nameExists(line)) {
+				output.println("This name exists already. Please choose another one!");
+			} else {
+				done = true;
+			}
+		} while (!done);
 		name = line;
 		
 		output.println("!!! Welcome <" + name + ">! You can exit this chat with /quit");
 		broadcast("!!! <" + name + "> entered the chat room...");
 		
-		boolean done = false;
+		done = false;
 		while(!done) {
 			try {
 				line = input.readLine();
-				done = line.equals("/quit");
-	            if(!done) {
+				done = (line == null || line.equals("/quit"));
+	            if(!done && line.trim().length() > 0) {
 	            	broadcast("<" + name + "> " + line);
 	            }
-	            
 			} catch (IOException e) {
 			}
 		}	
 
 		try {
+			socket.close();
 			clientsPermit.acquire();
 			clients.remove(this);
 			clientsPermit.release();
-			socket.close();
 		} catch (IOException e1) {
 			e1.printStackTrace();
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
+		System.out.println("Client <" + name + "> @ port " + socket.getPort() + " left the room!");
 		output.println("!!! Good bye <" + name + ">!");
 		broadcast("!!! <" + name + "> left the chat room...");
 	}
@@ -97,6 +105,15 @@ public class ClientHandler extends Thread {
 		for(ClientHandler client : clients) {
 			client.output.println(text);
 		}
+	}
+	
+	private boolean nameExists(String name) {
+		for(ClientHandler client : clients) {
+			if(name.equalsIgnoreCase(client.name)) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 }
