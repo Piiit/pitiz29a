@@ -28,6 +28,9 @@ public class ClientOutput extends Thread {
 	    		if(line != null) {
 	    			System.out.println(line);
 	    		}
+	    		if(line.startsWith("*** Bye")) {
+	    			socket.close();
+	    		}
 	    	}
 	    } catch (IOException e) {
 	    	System.out.println("Closing client output.");
