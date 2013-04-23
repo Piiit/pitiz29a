@@ -97,7 +97,7 @@ public class ClientHandler extends Thread {
 			e.printStackTrace();
 		}
 		System.out.println("Client <" + name + "> @ port " + socket.getPort() + " left the room!");
-		output.println("!!! Good bye <" + name + ">!");
+		output.println("*** Bye " + name + "***");
 		broadcast("!!! <" + name + "> left the chat room...");
 	}
 	
