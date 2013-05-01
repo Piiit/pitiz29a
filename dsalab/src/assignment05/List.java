@@ -30,8 +30,18 @@ public class List {
 		n.next = new Node(i); 
 	}
 	
-	//TODO
 	public void insertLastRec(int i) {
+		insertLastRec(root, i);
+	}
+	
+	private void insertLastRec(Node n, int i) {
+		if(n == null) {
+			n = new Node(i);
+		} else if(n.next == null) {
+			n.next = new Node(i);
+		} else {
+			insertLastRec(n.next, i);
+		}
 	}
 	
 	public void print() {
