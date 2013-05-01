@@ -13,16 +13,21 @@ public class List {
 	
 	public void insertFirst(int i) {
 		Node n = new Node(i);
-		n.suc = root;
+		n.next = root;
 		root = n;
 	}
 	
-	//TODO
 	public void insertLast(int i) {
-		Node n = new Node(i);
 		if(root == null) {
-			root = n;
+			root = new Node(i);
+			return;
 		} 
+		
+		Node n = root;
+		while(n.next != null) {
+			n = n.next;
+		}
+		n.next = new Node(i); 
 	}
 	
 	//TODO
@@ -34,7 +39,7 @@ public class List {
 		int i = 0;
 		while(n != null) {
 			System.out.println(i + ":" + n.value);
-			n = n.suc;
+			n = n.next;
 			i++;
 		}
 		System.out.println("Head=" + root);
@@ -50,7 +55,7 @@ public class List {
 			return;
 		}
 		System.out.println(i + ":" + n.value);
-		printRec(n.suc, ++i);
+		printRec(n.next, ++i);
 	}
 	
 	public Node search(int i) {
@@ -60,7 +65,7 @@ public class List {
 				System.out.println("Found: " + n + "; root=" + root);
 				return n;
 			}
-			n = n.suc;
+			n = n.next;
 		}
 		return null;
 	}
@@ -79,16 +84,16 @@ public class List {
 		}
 		
 		if (n.value == i) {
-			Node tmp = n.suc;
+			Node tmp = n.next;
 			if(n == root) {
-				System.out.println("Setting new root: " + n.suc);
-				root = n.suc;
+				System.out.println("Setting new root: " + n.next);
+				root = n.next;
 			}
 			n = null;
 			return tmp;
 		}
 		
-		n.suc = deleteRec(n.suc, i);
+		n.next = deleteRec(n.next, i);
 		return n;
 	}
 	
@@ -100,7 +105,7 @@ public class List {
 			System.out.println("Found (recursive): " + n + "; root=" + root);
 			return n;
 		}
-		return searchRec(n.suc, i);
+		return searchRec(n.next, i);
 	}
 	
 	public void delete(int i) {
@@ -109,7 +114,7 @@ public class List {
 		
 		while(n != null && n.value != i) {
 			pre = n;
-			n = n.suc;
+			n = n.next;
 		}
 
 		if (n == null) {
@@ -118,10 +123,10 @@ public class List {
 		
 		System.out.println("Found: " + n + "; root=" + root);
 		if(pre != null) {
-			pre.suc = n.suc;
+			pre.next = n.next;
 		}			
 		if(n == root) {
-			root = n.suc;
+			root = n.next;
 		}
 		n = null;
 	}
@@ -131,7 +136,7 @@ public class List {
 			return;
 		}
 		Node toDelete = root;
-		root = toDelete.suc;
+		root = toDelete.next;
 		toDelete = null;
 	}
 	

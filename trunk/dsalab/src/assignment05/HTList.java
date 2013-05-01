@@ -1,5 +1,7 @@
 package assignment05;
 
+import tools.ArrayUtility;
+
 public class HTList {
 	Node head;
 	Node tail;
@@ -15,9 +17,9 @@ public class HTList {
 	
 	public void insertFirst(int i) {
 		Node n = new Node(i);
-		n.suc = head;
+		n.next = head;
 		if(head == null) {
-			tail = n.suc;
+			tail = n.next;
 		} 
 		head = n;
 	}
@@ -27,7 +29,7 @@ public class HTList {
 		if(head == null) {
 			head = n;
 		} else {
-			tail.suc = n;
+			tail.next = n;
 		}
 		tail = n;
 	}
@@ -44,7 +46,7 @@ public class HTList {
 		int i = 0;
 		while(n != null) {
 			System.out.println(i + ":" + n.value);
-			n = n.suc;
+			n = n.next;
 			i++;
 		}
 		System.out.println("Head=" + head + "; tail=" + tail);
@@ -60,7 +62,7 @@ public class HTList {
 			return;
 		}
 		System.out.println(i + ":" + n.value);
-		printRec(n.suc, ++i);
+		printRec(n.next, ++i);
 	}
 	
 	public Node search(int i) {
@@ -70,7 +72,7 @@ public class HTList {
 				System.out.println("Found: " + n + "; head=" + head + "; tail=" + tail);
 				return n;
 			}
-			n = n.suc;
+			n = n.next;
 		}
 		return null;
 	}
@@ -89,10 +91,10 @@ public class HTList {
 		}
 		
 		if (n.value == i) {
-			Node tmp = n.suc;
+			Node tmp = n.next;
 			if(n == head) {
-				System.out.println("Setting new head: " + n.suc);
-				head = n.suc;
+				System.out.println("Setting new head: " + n.next);
+				head = n.next;
 			}
 			if(n == tail) {
 				tail = null;
@@ -101,8 +103,8 @@ public class HTList {
 			return tmp;
 		}
 		
-		n.suc = deleteRec(n.suc, i);
-		if(n.suc == null) {
+		n.next = deleteRec(n.next, i);
+		if(n.next == null) {
 			System.out.println("Setting new tail: " + n);
 			tail = n;
 		}
@@ -117,7 +119,7 @@ public class HTList {
 			System.out.println("Found (recursive): " + n + "; head=" + head + "; tail=" + tail);
 			return n;
 		}
-		return searchRec(n.suc, i);
+		return searchRec(n.next, i);
 	}
 	
 	public void delete(int i) {
@@ -126,7 +128,7 @@ public class HTList {
 		
 		while(n != null && n.value != i) {
 			pre = n;
-			n = n.suc;
+			n = n.next;
 		}
 
 		if (n == null) {
@@ -135,10 +137,10 @@ public class HTList {
 		
 		System.out.println("Found: " + n + "; head=" + head + "; tail=" + tail);
 		if(pre != null) {
-			pre.suc = n.suc;
+			pre.next = n.next;
 		}			
 		if(n == head) {
-			head = n.suc;
+			head = n.next;
 		}
 		n = null;
 	}
@@ -148,7 +150,7 @@ public class HTList {
 			return;
 		}
 		Node toDelete = head;
-		head = toDelete.suc;
+		head = toDelete.next;
 		toDelete = null;
 	}
 	
@@ -159,5 +161,11 @@ public class HTList {
 		int temp = n1.value;
 		n1.value = n2.value;
 		n2.value = temp;
+	}
+	
+	public void addRandom(int count, int from, int to) {
+		for(int i = 0; i < count; i++) {
+			insertLast(ArrayUtility.getRandomInt(from, to));
+		}
 	}
 }

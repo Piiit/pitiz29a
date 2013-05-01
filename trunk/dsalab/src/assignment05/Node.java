@@ -2,17 +2,17 @@ package assignment05;
 
 public class Node {
 	int value;
-	Node suc;
+	Node next;
 	
 	public Node(int value) {
 		this.value = value;
-		this.suc = null;
+		this.next = null;
 	}
 
 	@Override
 	public String toString() {
 		return "[Node: value=" + value + 
-			   "; suc=" + (suc == null ? "NULL" : suc.value) +
+			   "; suc=" + (next == null ? "NULL" : next.value) +
 			   "]";
 	}
 	

@@ -18,10 +18,10 @@ public class HTDLList {
 		if(head == null) {
 			tail = n;
 		} else {
-			head.pre = n;
+			head.prev = n;
 		}
 		head = n;
-		n.pre = head;
+		n.prev = head;
 	}
 	
 	public void insertLast(int i) {
@@ -29,7 +29,7 @@ public class HTDLList {
 		if(head == null) {
 			head = n;
 		} else {
-			tail.suc = n;
+			tail.next = n;
 		}
 		tail = n;
 	}
@@ -46,7 +46,7 @@ public class HTDLList {
 		int i = 0;
 		while(n != null) {
 			System.out.println(i + ":" + n.value);
-			n = n.suc;
+			n = n.next;
 			i++;
 		}
 		System.out.println();
@@ -62,7 +62,7 @@ public class HTDLList {
 			return;
 		}
 		System.out.println(i + ":" + n.value);
-		printRec(n.suc, ++i);
+		printRec(n.next, ++i);
 	}
 	
 	public DLLNode search(int i) {
@@ -72,7 +72,7 @@ public class HTDLList {
 				System.out.println("Found: " + n + "; root=" + head + "; tail=" + tail);
 				return n;
 			}
-			n = n.suc;
+			n = n.next;
 		}
 		return null;
 	}
@@ -86,17 +86,17 @@ public class HTDLList {
 		if(n == null) {
 			return;
 		}
-		if(n.pre != null) {
-			n.pre.suc = n.suc;
+		if(n.prev != null) {
+			n.prev.next = n.next;
 		}
-		if(n.suc != null) {
-			n.suc.pre = n.pre;
+		if(n.next != null) {
+			n.next.prev = n.prev;
 		}
 		if(n == head) {
-			head = n.suc;
+			head = n.next;
 		}
 		if(n == tail) {
-			tail = n.pre;
+			tail = n.prev;
 		}
 		n = null;
 	}
@@ -109,7 +109,7 @@ public class HTDLList {
 			System.out.println("Found (recursive): " + n + "; root=" + head + "; tail=" + tail);
 			return n;
 		}
-		return searchRec(n.suc, i);
+		return searchRec(n.next, i);
 	}
 	
 	public void delete(int i) {
@@ -117,17 +117,17 @@ public class HTDLList {
 		if(n == null) {
 			return;
 		}
-		if(n.pre != null) {
-			n.pre.suc = n.suc;
+		if(n.prev != null) {
+			n.prev.next = n.next;
 		}
-		if(n.suc != null) {
-			n.suc.pre = n.pre;
+		if(n.next != null) {
+			n.next.prev = n.prev;
 		}
 		if(n == head) {
-			head = n.suc;
+			head = n.next;
 		}
 		if(n == tail) {
-			tail = n.pre;
+			tail = n.prev;
 		}
 		n = null;
 	}
@@ -137,10 +137,10 @@ public class HTDLList {
 			return;
 		}
 		DLLNode toDelete = head;
-		if(toDelete.suc != null) {
-			toDelete.suc.pre = null;
+		if(toDelete.next != null) {
+			toDelete.next.prev = null;
 		}
-		head = toDelete.suc;
+		head = toDelete.next;
 		toDelete = null;
 	}
 	
@@ -151,7 +151,6 @@ public class HTDLList {
 		int temp = n1.value;
 		n1.value = n2.value;
 		n2.value = temp;
-		
 	}
 	
 
