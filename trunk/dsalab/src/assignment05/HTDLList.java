@@ -36,6 +36,7 @@ public class HTDLList {
 	
 	// This is the same as insertLast, because with 
 	// a head/tail-list we can directly jump to the end
+	// without any recursive call	
 	public void insertLastRec(int i) {
 		insertLast(i);
 	}
