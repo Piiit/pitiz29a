@@ -1,33 +1,33 @@
 package assignment05;
 
 public class HTDLList {
-	DLLNode root;
+	DLLNode head;
 	DLLNode tail;
 	
 	public HTDLList() {
-		root = null;
+		head = null;
 		tail = null;
 	}
 	
 	public boolean isEmpty() {
-		return (root == null);
+		return (head == null);
 	}
 	
 	public void insertFirst(int i) {
-		DLLNode n = new DLLNode(i, null, root);
-		if(root == null) {
+		DLLNode n = new DLLNode(i, null, head);
+		if(head == null) {
 			tail = n;
 		} else {
-			root.pre = n;
+			head.pre = n;
 		}
-		root = n;
-		n.pre = root;
+		head = n;
+		n.pre = head;
 	}
 	
 	public void insertLast(int i) {
 		DLLNode n = new DLLNode(i, tail, null);
-		if(root == null) {
-			root = n;
+		if(head == null) {
+			head = n;
 		} else {
 			tail.suc = n;
 		}
@@ -41,7 +41,7 @@ public class HTDLList {
 	}
 	
 	public void print() {
-		DLLNode n = root;
+		DLLNode n = head;
 		int i = 0;
 		while(n != null) {
 			System.out.println(i + ":" + n.value);
@@ -52,7 +52,7 @@ public class HTDLList {
 	}
 	
 	public void printRec() {
-		printRec(root, 0);
+		printRec(head, 0);
 		System.out.println();
 	}
 	
@@ -65,10 +65,10 @@ public class HTDLList {
 	}
 	
 	public DLLNode search(int i) {
-		DLLNode n = root;
+		DLLNode n = head;
 		while(n != null) {
 			if(n.value == i) {
-				System.out.println("Found: " + n + "; root=" + root + "; tail=" + tail);
+				System.out.println("Found: " + n + "; root=" + head + "; tail=" + tail);
 				return n;
 			}
 			n = n.suc;
@@ -77,7 +77,7 @@ public class HTDLList {
 	}
 	
 	public DLLNode searchRec(int i) {
-		return searchRec(root, i);
+		return searchRec(head, i);
 	}
 	
 	public void deleteRec(int i) {
@@ -91,8 +91,8 @@ public class HTDLList {
 		if(n.suc != null) {
 			n.suc.pre = n.pre;
 		}
-		if(n == root) {
-			root = n.suc;
+		if(n == head) {
+			head = n.suc;
 		}
 		if(n == tail) {
 			tail = n.pre;
@@ -105,7 +105,7 @@ public class HTDLList {
 			return null;
 		}
 		if(n.value == i) {
-			System.out.println("Found (recursive): " + n + "; root=" + root + "; tail=" + tail);
+			System.out.println("Found (recursive): " + n + "; root=" + head + "; tail=" + tail);
 			return n;
 		}
 		return searchRec(n.suc, i);
@@ -122,8 +122,8 @@ public class HTDLList {
 		if(n.suc != null) {
 			n.suc.pre = n.pre;
 		}
-		if(n == root) {
-			root = n.suc;
+		if(n == head) {
+			head = n.suc;
 		}
 		if(n == tail) {
 			tail = n.pre;
@@ -132,22 +132,24 @@ public class HTDLList {
 	}
 	
 	public void deleteFirst() {
-		if(root == null) {
+		if(head == null) {
 			return;
 		}
-		DLLNode toDelete = root;
+		DLLNode toDelete = head;
 		if(toDelete.suc != null) {
 			toDelete.suc.pre = null;
 		}
-		root = toDelete.suc;
+		head = toDelete.suc;
 		toDelete = null;
 	}
 	
-	private void exchange(DLLNode n1, DLLNode n2) {
+	public static void exchangeValues(DLLNode n1, DLLNode n2) {
 		if(n1 == null || n2 == null) {
 			throw new IllegalArgumentException();
 		}
-		DLLNode pre = n1.pre;
+		int temp = n1.value;
+		n1.value = n2.value;
+		n2.value = temp;
 		
 	}
 	

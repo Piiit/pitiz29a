@@ -23,43 +23,35 @@ public class QuickSort {
 //	     QuickSort(Ptr1,Rechts)
 //	 ende
 	
-	public static void sort(HTDLList list) {
-		QuickSort(list.root, list.tail);
+	public static void sort(HTList list) {
+		quickSort(list.head, list.tail);
 	}
 	
 	
 	
-	private static void QuickSort(DLLNode left, DLLNode right) {
+	private static void quickSort(Node left, Node right) {
 		if (left != right) {
-			DLLNode pointer0 = left;
-			DLLNode pointer1 = left;
-			DLLNode pointer2 = left;
+			Node pointer1_pre = left;
+			Node pointer1 = left;
+			Node pointer2 = left;
 			
 			int pivot = left.value;
 			
 			do {
 				pointer2 = pointer2.suc;
 				if(pointer2.value < pivot) {
-					pointer0 = pointer1;
+					pointer1_pre = pointer1;
 					pointer1 = pointer1.suc;
-					exchange(pointer1, pointer2);
+					HTList.exchangeValues(pointer1, pointer2);
 				}
 			} while (pointer2 != right);
-			exchange(left, pointer1);
+			HTList.exchangeValues(left, pointer1);
 			if(pointer1 != right) {
 				pointer1 = pointer1.suc;
 			}
-			QuickSort(left, pointer0);
-			QuickSort(pointer1, right);
+			quickSort(left, pointer1_pre);
+			quickSort(pointer1, right);
 		}
 	}
 	
-	/**
-	 * @param args
-	 */
-	public static void main(String[] args) {
-		// TODO Auto-generated method stub
-
-	}
-
 }
