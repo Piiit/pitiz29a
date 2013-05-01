@@ -32,8 +32,11 @@ public class HTList {
 		tail = n;
 	}
 	
-	//TODO insertLastRec
+	// This is the same as insertLast, because with 
+	// a head/tail-list we can directly jump to the end
+	// without any recursive call
 	public void insertLastRec(int i) {
+		insertLast(i);
 	}
 	
 	public void print() {
@@ -44,12 +47,12 @@ public class HTList {
 			n = n.suc;
 			i++;
 		}
-		System.out.println();
+		System.out.println("Head=" + head + "; tail=" + tail);
 	}
 	
 	public void printRec() {
 		printRec(head, 0);
-		System.out.println();
+		System.out.println("Head=" + head + "; tail=" + tail);
 	}
 	
 	private void printRec(Node n, int i) {
@@ -64,7 +67,7 @@ public class HTList {
 		Node n = head;
 		while(n != null) {
 			if(n.value == i) {
-				System.out.println("Found: " + n + "; root=" + head + "; tail=" + tail);
+				System.out.println("Found: " + n + "; head=" + head + "; tail=" + tail);
 				return n;
 			}
 			n = n.suc;
@@ -91,14 +94,17 @@ public class HTList {
 				System.out.println("Setting new head: " + n.suc);
 				head = n.suc;
 			}
+			if(n == tail) {
+				tail = null;
+			}
 			n = null;
 			return tmp;
 		}
 		
 		n.suc = deleteRec(n.suc, i);
 		if(n.suc == null) {
-			System.out.println("Setting new tail: " + n.suc);
-			tail = n.suc;
+			System.out.println("Setting new tail: " + n);
+			tail = n;
 		}
 		return n;
 	}
@@ -108,7 +114,7 @@ public class HTList {
 			return null;
 		}
 		if(n.value == i) {
-			System.out.println("Found (recursive): " + n + "; root=" + head + "; tail=" + tail);
+			System.out.println("Found (recursive): " + n + "; head=" + head + "; tail=" + tail);
 			return n;
 		}
 		return searchRec(n.suc, i);
@@ -127,7 +133,7 @@ public class HTList {
 			return;
 		}
 		
-		System.out.println("Found: " + n + "; root=" + head + "; tail=" + tail);
+		System.out.println("Found: " + n + "; head=" + head + "; tail=" + tail);
 		if(pre != null) {
 			pre.suc = n.suc;
 		}			
@@ -153,6 +159,5 @@ public class HTList {
 		int temp = n1.value;
 		n1.value = n2.value;
 		n2.value = temp;
-		
 	}
 }
