@@ -10,19 +10,24 @@ public class InsertionSort implements Algorithm {
 //		if(from > to || from < 0 || to >= array.length) {
 //			throw new Exception("Out of bounds!");
 //		}
-		for(int i = from+1; i <= to; i++) {
-			int j = i - 1;
-			int current = array[i];
-			while(j >= 0 && array[j] > current) {
-				array[j+1] = array[j];
-				j--;
-			}
-			array[j+1] = current;
-		}
+
+		sort(this.array, from, to);
 	}
 
 	public InsertionSort(int[] array) {
 		this.array = array;
+	}
+	
+	public static void sort(int[] array, int from, int to) {
+		for(int i = from+1; i <= to; i++) {
+			int j = i - 1;
+			int current = array[i];
+			while(j >= from && array[j] > current) {
+				array[j+1] = array[j];
+				j--;
+			}
+			array[j+1] = current;
+		}	
 	}
 
 	@Override

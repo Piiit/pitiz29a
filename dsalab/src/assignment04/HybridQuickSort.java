@@ -34,8 +34,9 @@ public class HybridQuickSort implements Algorithm {
 	private void hybridQuickSort(int l, int r) throws Exception {
 		if (l < r) {
 			if (r - l < k) {
-				InsertionSort iSort = new InsertionSort(array);
-				iSort.sort(l, r);
+//				InsertionSort iSort = new InsertionSort(array);
+//				iSort.sort(l, r);
+				InsertionSort.sort(array, l, r);
 			} else {
 				int m = partition(l, r);
 				hybridQuickSort(l, m-1);

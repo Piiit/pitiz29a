@@ -15,7 +15,7 @@ public class SortTest {
 		
 		int[] A;
 		
-		for(int k = 100; k <= 2500; k+=100) {
+		for(int k = 1; k <= 25; k++) {
 			ArrayList<Algorithm> algorithms = new ArrayList<Algorithm>();
 			algorithms.add(new QuickSort());
 			algorithms.add(new HybridQuickSort(k));
