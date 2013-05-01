@@ -15,8 +15,39 @@ public class QuickSort implements Algorithm {
 	}
 
 	public void sort() throws Exception {
-		HybridQuickSort hqSort = new HybridQuickSort(array, -1); 
-		hqSort.sort();
+		sort(0, array.length-1);
+	}
+	
+	private void sort(int l, int r) {
+		if (l < r) {
+			int m = partition(l, r);
+			sort(l, m-1);
+			sort(m, r);
+		}		
+	}
+	
+	private int partition(int l, int r) {
+		int pivot = array[r];
+		int i = l - 1;
+		int j = r + 1;
+		while (i < j) {
+			do {
+				j--;
+			} while (array[j] > pivot);
+			do {
+				i++;
+			} while (array[i] < pivot);
+			if (i < j) {
+				swap(i, j);
+			}
+		}
+		return i;
+	}
+	
+	private void swap(int i, int j) {
+		int tmp = array[i];
+		array[i] = array[j];
+		array[j] = tmp;
 	}
 
 	@Override

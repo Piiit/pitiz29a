@@ -9,13 +9,13 @@ import tools.ArrayUtility;
 public class SortTest {
 	
 	private final static int REPEATS = 5;
-	private final static int MAXELEMENTS = 100000;
+	private final static int MAXELEMENTS = 1000000;
 
 	public static void main(String args[]) throws Exception {
 		
 		int[] A;
 		
-		for(int k = 1; k <= 25; k++) {
+		for(int k = 1; k <= 500; k+=50) {
 			ArrayList<Algorithm> algorithms = new ArrayList<Algorithm>();
 			algorithms.add(new QuickSort());
 			algorithms.add(new HybridQuickSort(k));
