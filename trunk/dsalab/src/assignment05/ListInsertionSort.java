@@ -4,7 +4,7 @@ import tools.TestableAlgorithm;
 
 public class ListInsertionSort implements TestableAlgorithm {
 
-	private HTDLList testList;
+	private HTDLList testList = new HTDLList();
 	private int[] testArray;
 	
 	public static void sort(HTDLList list) {

@@ -17,7 +17,7 @@ public class HTList {
 		Node n = new Node(i);
 		n.next = head;
 		if(head == null) {
-			tail = n.next;
+			tail = n;
 		} 
 		head = n;
 	}
