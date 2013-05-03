@@ -9,18 +9,20 @@ import tools.ArrayUtility;
 public class TestComparison {
 	
 	private final static int REPEATS = 4;
-	private final static int MAXELEMENTS = 10000;
+	private final static int MAXELEMENTS = 15000;
 
 	public static void main(String args[]) throws Exception {
 		
 		int[] A;
 		
 		ArrayList<TestableAlgorithm> algorithms = new ArrayList<TestableAlgorithm>();
-		algorithms.add(new ListQuickSort());
 		algorithms.add(new ListInsertionSort());
+		algorithms.add(new ListQuickSort());
+//		algorithms.add(new InsertionSort());
 
 		AlgorithmComparison algComparison = new AlgorithmComparison(algorithms);
 		algComparison.printHeader();
+		
 		
 		try {
 			boolean done = false;
@@ -31,8 +33,10 @@ public class TestComparison {
 					elements = MAXELEMENTS;
 					done = true;
 				}
-				A = ArrayUtility.createRandomArray(elements, 0, 100000);
-				algComparison.run(A, REPEATS);
+				for(int i = 0; i < 3; i++) {
+					A = ArrayUtility.createRandomArray(elements, 0, 100000);
+					algComparison.run(A, REPEATS);
+				}
 			}
 		} catch (Exception e1) {
 			e1.printStackTrace();
