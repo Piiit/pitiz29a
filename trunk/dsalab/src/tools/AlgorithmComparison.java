@@ -4,17 +4,17 @@ import java.util.ArrayList;
 
 public class AlgorithmComparison {
 	
-	private ArrayList<Algorithm> algList = new ArrayList<Algorithm>();
+	private ArrayList<TestableAlgorithm> algList = new ArrayList<TestableAlgorithm>();
 	private String format = "%15s | %22.3f | %s\n";
 	private String formatTitle = "%15s | %22s | %s\n";
 	
-	public AlgorithmComparison(ArrayList<Algorithm> algList) {
+	public AlgorithmComparison(ArrayList<TestableAlgorithm> algList) {
 		this.algList = algList;
 	}
 	
 	public void printHeader() {
 		System.out.println("Comparing...");
-		for(Algorithm a : algList) {
+		for(TestableAlgorithm a : algList) {
 			System.out.println(a.getName());
 		}
 		System.out.println();
@@ -30,7 +30,7 @@ public class AlgorithmComparison {
 			int id=0;
 			for(int times = 0; times < repeats; times++) {
 				id=0;
-				for(Algorithm alg : algList) {
+				for(TestableAlgorithm alg : algList) {
 					alg.setArray(ArrayUtility.copyArray(A));
 					startTime = System.nanoTime();
 					try {
@@ -46,7 +46,7 @@ public class AlgorithmComparison {
 			id=0;
 			String winner = "n/a";
 			double speed = 0;
-			for(Algorithm alg : algList) {
+			for(TestableAlgorithm alg : algList) {
 				estimatedTime[id] = ArrayUtility.median(estimates[id]);
 				if(estimatedTime[id] < speed || speed == 0) {
 					speed = estimatedTime[id];

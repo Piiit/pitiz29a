@@ -1,8 +1,8 @@
 package assignment04;
 
-import tools.Algorithm;
+import tools.TestableAlgorithm;
 
-public class HybridQuickSort implements Algorithm {
+public class HybridQuickSort implements TestableAlgorithm {
 	
 	private int[] array;
 	private int k = 0;

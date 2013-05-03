@@ -1,6 +1,11 @@
 package assignment05;
 
-public class QuickSort {
+import tools.TestableAlgorithm;
+
+public class ListQuickSort implements TestableAlgorithm {
+	
+	private HTList testList;
+	private int[] testArray;
 	
 	public static void sort(HTList list) {
 		quickSort(list.head, list.tail);
@@ -29,6 +34,32 @@ public class QuickSort {
 			quickSort(left, pointer1_pre);
 			quickSort(pointer1, right);
 		}
+	}
+
+	@Override
+	public void execute() throws Exception {
+		sort(testList);
+	}
+
+	@Override
+	public String getName() {
+		return "QuickSort(List)";
+	}
+
+	@Override
+	public int[] getArray() {
+		return testArray;
+	}
+
+	@Override
+	public void setArray(int[] array) {
+		testArray = array;
+		testList.fromArray(array);
+	}
+
+	@Override
+	public int getElementCount() {
+		return testArray.length;
 	}
 
 }

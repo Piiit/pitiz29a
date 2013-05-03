@@ -1,8 +1,8 @@
 package assignment04;
 
-import tools.Algorithm;
+import tools.TestableAlgorithm;
 
-public class InsertionSort implements Algorithm {
+public class InsertionSort implements TestableAlgorithm {
 	
 	private int[] array;
 
@@ -19,7 +19,7 @@ public class InsertionSort implements Algorithm {
 	}
 	
 	public static void sort(int[] array, int from, int to) {
-		for(int i = from+1; i <= to; i++) {
+		for(int i = from+1; i < to; i++) {
 			int j = i - 1;
 			int current = array[i];
 			while(j >= from && array[j] > current) {
