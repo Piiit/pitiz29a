@@ -4,7 +4,7 @@ import tools.TestableAlgorithm;
 
 public class ListQuickSort implements TestableAlgorithm {
 	
-	private HTList testList;
+	private HTList testList = new HTList();
 	private int[] testArray;
 	
 	public static void sort(HTList list) {
