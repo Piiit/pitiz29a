@@ -52,12 +52,12 @@ public class List {
 			n = n.next;
 			i++;
 		}
-		System.out.println("Head=" + root);
+		System.out.println("Root=" + root);
 	}
 	
 	public void printRec() {
 		printRec(root, 0);
-		System.out.println("Head=" + root);
+		System.out.println("Root=" + root);
 	}
 	
 	private void printRec(Node n, int i) {
@@ -157,5 +157,11 @@ public class List {
 		int temp = n1.value;
 		n1.value = n2.value;
 		n2.value = temp;
+	}
+	
+	public void fromArray(int[] array) {
+		for(int i = array.length-1; i >= 0; i--) {
+			insertFirst(array[i]);
+		}
 	}
 }

@@ -1,7 +1,5 @@
 package assignment05;
 
-import tools.ArrayUtility;
-
 public class HTList {
 	Node head;
 	Node tail;
@@ -163,9 +161,9 @@ public class HTList {
 		n2.value = temp;
 	}
 	
-	public void addRandom(int count, int from, int to) {
-		for(int i = 0; i < count; i++) {
-			insertLast(ArrayUtility.getRandomInt(from, to));
+	public void fromArray(int[] array) {
+		for(int i = array.length-1; i >= 0; i--) {
+			insertFirst(array[i]);
 		}
 	}
 }

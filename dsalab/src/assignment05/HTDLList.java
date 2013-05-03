@@ -153,5 +153,11 @@ public class HTDLList {
 		n2.value = temp;
 	}
 	
+	public void fromArray(int[] array) {
+		for(int i = array.length-1; i >= 0; i--) {
+			insertFirst(array[i]);
+		}
+	}
+	
 
 }

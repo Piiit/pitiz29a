@@ -1,6 +1,6 @@
 package tools;
 
-public interface Algorithm {
+public interface TestableAlgorithm {
 	public void execute() throws Exception;
 	public String getName();
 	public int[] getArray();
