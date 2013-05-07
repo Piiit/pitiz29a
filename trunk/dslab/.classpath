@@ -2,38 +2,6 @@
 <classpath>
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.7"/>
-	<classpathentry kind="lib" path="resources/jxse-2.6.jar"/>
 	<classpathentry kind="lib" path="resources"/>
-	<classpathentry kind="lib" path="resources/bcprov-jdk14.jar"/>
-	<classpathentry kind="lib" path="resources/bcprov-jdk15-145.jar"/>
-	<classpathentry kind="lib" path="resources/cglib-2.1_3-src.jar"/>
-	<classpathentry kind="lib" path="resources/cglib-nodep-2.1_3.jar"/>
-	<classpathentry kind="lib" path="resources/derby-10.5.1.1.jar"/>
-	<classpathentry kind="lib" path="resources/derbyLocale_cs.jar"/>
-	<classpathentry kind="lib" path="resources/derbyLocale_de_DE.jar"/>
-	<classpathentry kind="lib" path="resources/derbyLocale_es.jar"/>
-	<classpathentry kind="lib" path="resources/derbyLocale_fr.jar"/>
-	<classpathentry kind="lib" path="resources/derbyLocale_hu.jar"/>
-	<classpathentry kind="lib" path="resources/derbyLocale_it.jar"/>
-	<classpathentry kind="lib" path="resources/derbyLocale_ja_JP.jar"/>
-	<classpathentry kind="lib" path="resources/derbyLocale_ko_KR.jar"/>
-	<classpathentry kind="lib" path="resources/derbyLocale_pl.jar"/>
-	<classpathentry kind="lib" path="resources/derbyLocale_pt_BR.jar"/>
-	<classpathentry kind="lib" path="resources/derbyLocale_ru.jar"/>
-	<classpathentry kind="lib" path="resources/derbyLocale_zh_CN.jar"/>
-	<classpathentry kind="lib" path="resources/derbyLocale_zh_TW.jar"/>
-	<classpathentry kind="lib" path="resources/felix.jar"/>
-	<classpathentry kind="lib" path="resources/h2-1.2.127.jar"/>
-	<classpathentry kind="lib" path="resources/hamcrest-core-1.1.jar"/>
-	<classpathentry kind="lib" path="resources/hamcrest-library-1.1.jar"/>
-	<classpathentry kind="lib" path="resources/javax.servlet.jar"/>
-	<classpathentry kind="lib" path="resources/jmock-2.5.1.jar"/>
-	<classpathentry kind="lib" path="resources/jmock-junit3-2.5.1.jar"/>
-	<classpathentry kind="lib" path="resources/jmock-junit4-2.5.1.jar"/>
-	<classpathentry kind="lib" path="resources/jmock-legacy-2.5.1.jar"/>
-	<classpathentry kind="lib" path="resources/junit-4.4.jar"/>
-	<classpathentry kind="lib" path="resources/jxta.jar"/>
-	<classpathentry kind="lib" path="resources/netty-3.1.5.GA.jar"/>
-	<classpathentry kind="lib" path="resources/org.mortbay.jetty.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

@@ -1,4 +1,4 @@
-package dslab8;
+package dslab08;
 
 
 import java.util.Enumeration;

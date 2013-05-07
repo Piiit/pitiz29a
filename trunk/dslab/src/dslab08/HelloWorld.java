@@ -1,4 +1,4 @@
-package dslab8;
+package dslab08;
 
 import java.util.Random;
 
@@ -47,7 +47,7 @@ public class HelloWorld implements Runnable, DiscoveryListener {
 	public void discoveryEvent(net.jxta.discovery.DiscoveryEvent event) {
 		System.out.println("Discover !");
 		try {
-			dslab8.DiscoveryEvent d_event = new dslab8.DiscoveryEvent(this);
+			dslab08.DiscoveryEvent d_event = new dslab08.DiscoveryEvent(this);
 			d_event.setAdvertisements(event.getSearchResults());
 		} catch (Exception e) {
 			e.printStackTrace();
