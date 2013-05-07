@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE jxta:CP>
+<jxta:CP type="jxta:PlatformConfig" xmlns:jxta="http://jxta.org">
+	<PID>
+		urn:jxta:uuid-59616261646162614E504720503250330C84680D3F254C0A954486ED83AC81F703
+	</PID>
+	<Name>
+		My Peer Name
+	</Name>
+	<Desc>
+		I am a P2P Peer.
+	</Desc>
+	<Svc>
+		<MCID>
+			urn:jxta:uuid-DEADBEEFDEAFBABAFEEDBABE0000000905
+		</MCID>
+		<Parm>
+			<jxta:TransportAdvertisement xmlns:jxta="http://jxta.org" xml:space="preserve" type="jxta:TCPTransportAdvertisement">
+<Protocol>tcp</Protocol><ServerOff/><ConfigMode>auto</ConfigMode><Port>9701</Port>			</jxta:TransportAdvertisement>
+		</Parm>
+	</Svc>
+	<Svc disabled="true">
+		<MCID>
+			urn:jxta:uuid-DEADBEEFDEAFBABAFEEDBABE0000001105
+		</MCID>
+		<Parm>
+			<jxta:TransportAdvertisement xmlns:jxta="http://jxta.org" xml:space="preserve" type="jxta:MulticastTransportAdvertisement">
+<Protocol>tcp</Protocol><MulticastOff/><MulticastAddr>224.0.1.85</MulticastAddr><MulticastPort>1234</MulticastPort><Mcast_Pool_Size>5</Mcast_Pool_Size><MulticastSize>16384</MulticastSize>			</jxta:TransportAdvertisement>
+			<isOff/>
+		</Parm>
+	</Svc>
+	<Svc>
+		<MCID>
+			urn:jxta:uuid-DEADBEEFDEAFBABAFEEDBABE0000000A05
+		</MCID>
+		<Parm>
+			<jxta:TransportAdvertisement xmlns:jxta="http://jxta.org" xml:space="preserve" type="jxta:HTTPTransportAdvertisement">
+<Protocol>http</Protocol><ConfigMode>auto</ConfigMode><Port>9700</Port><ServerOff/>			</jxta:TransportAdvertisement>
+		</Parm>
+	</Svc>
+	<Svc>
+		<MCID>
+			urn:jxta:uuid-DEADBEEFDEAFBABAFEEDBABE0000000605
+		</MCID>
+		<Parm type="jxta:RdvConfig" xmlns:jxta="http://jxta.org" xml:space="preserve" config="client">
+<seeds useOnlySeeds="true"><addr seeding="true">file:/Users/user/Documents/eclipseWorkspace/dslab/seeds.txt</addr></seeds>		</Parm>
+	</Svc>
+	<Svc>
+		<MCID>
+			urn:jxta:uuid-DEADBEEFDEAFBABAFEEDBABE0000000F05
+		</MCID>
+		<Parm type="jxta:RelayConfig" xmlns:jxta="http://jxta.org" xml:space="preserve" client="true">
+<client><seeds useOnlySeeds="true"><addr seeding="true">file:/Users/user/Documents/eclipseWorkspace/dslab/seeds.txt</addr></seeds></client><server/>		</Parm>
+	</Svc>
+	<Svc>
+		<MCID>
+			urn:jxta:uuid-DEADBEEFDEAFBABAFEEDBABE0000000505
+		</MCID>
+		<Parm type="jxta:PSEConfig" xmlns:jxta="http://jxta.org" xml:space="preserve">
+<RootCert><Certificate>MIICBDCCAW2gAwIBAgIBATANBgkqhkiG9w0BAQUFADBIMRUwEwYDVQQKDAx3d3cuanh0YS5vcmcx
+EDAOBgNVBAMMB29mbm8tQ0ExHTAbBgNVBAsMFEE5RkFCNDQyMkNBQTg2QUJCN0Q3MB4XDTEzMDQz
+MDE1NDQ0NFoXDTIzMDQzMDE1NDQ0NFowSDEVMBMGA1UECgwMd3d3Lmp4dGEub3JnMRAwDgYDVQQD
+DAdvZm5vLUNBMR0wGwYDVQQLDBRBOUZBQjQ0MjJDQUE4NkFCQjdENzCBnzANBgkqhkiG9w0BAQEF
+AAOBjQAwgYkCgYEAqIrCnVMGtIjxwSTnvd6kRyyzf0JIZRY9DPTYX2YBIUeGoh3C4O8+RwVxwMz8
+dD9Whyf77CqwH3MF93a2+/kai1EE9Ey49rsh57IipiFjzPZvHk4TzqEZe8DIq1KOP4/LyNbtxg+P
+nfuuWRPNySlo30EiteljJ0d8AHrNKO+h/W8CAwEAATANBgkqhkiG9w0BAQUFAAOBgQADbFT9CZ/F
+7lPpbsT0OdeioJiQsFoQZaoBthOXw2BGjwPQA1Gfz04+DeJWL7YCiEslX1kTmWxdcNoOcw4D88ul
+DSjMVRBwPdLA2DlWJwoZgTa2GYnFHX2PyOBKMC4EMv+HXKWHTXSHxT1IjpsZQmtWrvJXS2HOE/KB
+DKkYqpYfsQ==</Certificate><EncryptedPrivateKey algorithm="RSA">MIICoTAbBgkqhkiG9w0BBQMwDgQILmk2oRQNzH4CAgH0BIICgJ2cNMKPKH2gU2lbEvyVkfZOlTA1
+AYOSEEuQ+hMfiGo7s6eBq4OuqFf3IF0OrgH9+SKXKkCCh7e0PGsZLUwt8soV5KhHBNr6RqoyNU6G
+ynqE2jbxm4f1Z2eNvJLL5fKSjkPRpuKukSFu2vBv+4IfuNAmf2fwwS8lhEMSdJQ3InMTx+Gt4cU/
+7XsaHGpBlq/06nA6SvXVJeDUfYH9w5zijFEcy7kuvt9pl/JpDNW9Rz0ZMEqFY7pyHeR2LsRUI0VF
+k3LCXvV/0/MZq2a+okBWXSpW9j5HdGkHqkQkPwgpPm3LhHELuK6nKq8A1QBmShVjUE4lXD0UkpWt
+SmBxLDFgEUUngZz0n5FTyvCzKOL1fQa3qlIKPIfo2VnPiYsoI6h+Xab2HJAD71jaLp9ZmitfXtHz
+jom/+F56YmOZIM2fOHILOh9gDzh+F3HjiLMzyd1JUB24ia01HYkg7Wy+VqEOmRUC8i7BWvq6E5go
+gq7cXE91QQ+YMWAYUsugHE0iW2Gxe6YGXybzDKmZBCrgJ48LpQHk7PCr9c61l5D9aRXqpiEK6/sF
+nPCnRp2j3YBxaJDUbld1nP/+mYFQP3oFyp+ji4naeF1nFkesVCtHLz4oZecPsgLeHhzjk15vh4d2
+pW8E2gMh8IaFdW4tBUk4Q5loVXKlc1mOJFlxaUjijaKScoJjaiLnzpv+JOIEg5CCCFoy6JbVUDle
+akEZSRSIjxSyBQW9T4TOUuqTWMGAfuwU4Cm33eCEFb8dZarl8Ju58Il5n3E5cVhjpZIEAxBktzrC
+BAKJb3Jh89qvVV+YGRPPU2GlKlN4dUFT0KalCNMPpKDfogDAhYPWGTNHfri+uQQKT3s=</EncryptedPrivateKey></RootCert>		</Parm>
+	</Svc>
+</jxta:CP>

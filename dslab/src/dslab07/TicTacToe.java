@@ -1,4 +1,4 @@
-package dslab7;
+package dslab07;
 
 public class TicTacToe {
 	

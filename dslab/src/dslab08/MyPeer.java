@@ -1,4 +1,4 @@
-package dslab8;
+package dslab08;
 
 /*
 * Copyright (c) 2006 Mark Petrovic <mspetrovic@gmail.com>

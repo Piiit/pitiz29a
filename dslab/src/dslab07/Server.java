@@ -1,4 +1,4 @@
-package dslab7;
+package dslab07;
 
 import java.io.IOException;
 import java.net.ServerSocket;
