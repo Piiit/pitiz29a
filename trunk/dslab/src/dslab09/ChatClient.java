@@ -10,6 +10,7 @@ public class ChatClient{
 			c.login("JOE","JOE123");
 			c.chat("JOE", "Hello from DS");
 			
+			c.login("JACK", "JACK123");
 			c.chat("XY", "hallo");
 			c.logout("JOE");
 		} catch (MalformedURLException | NotBoundException | RemoteException re) { 

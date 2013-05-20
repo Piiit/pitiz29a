@@ -16,6 +16,7 @@ public class ChatServerImpl extends UnicastRemoteObject implements ChatServer {
 		users = new HashMap<String, String>();
 		logins = new HashMap<String, String>();
 		users.put("JOE", "JOE123");
+		users.put("JACK", "JACK123");
 	}
 	
 	public void login(String name, String pass) throws RemoteException {
