@@ -56,9 +56,8 @@ public class MyBoxClient {
 		System.out.println(" - Available options:");
 		System.out.println("   -s server address (default = localhost)");
 		System.out.println("   -h mybox home directory (default = ~/mybox)");
-		
 	}
-
+	
 	public static void main(String[] args) throws NotBoundException {	
 		
 		try {
@@ -72,21 +71,21 @@ public class MyBoxClient {
 				System.out.println("Type 'java MyBoxClient help' for usage.");
 				System.exit(-1);
 			}
-			String server = args[0];
+			String serverName = args[0];
 			String command = args[1];
 			String filename = args[2];
 			
 			System.out.println("Welcome to myBox!");
-			System.out.println("...connecting to " + server);
-		   	ServerInterface s = (ServerInterface)Naming.lookup("//" + server + "/MyBoxService");
+			System.out.println("...connecting to " + serverName);
+		   	ServerInterface server = (ServerInterface)Naming.lookup("//" + serverName + "/MyBoxService");
 		   	System.out.println("...connected!");
 		   	
 		   	System.out.println("Command: " + command + " " + filename);
 		   	File file = new File(clientDir + filename);
 		   	if(file.exists()) {
-		   		FileChunk chunk = new FileChunk(clientDir, filename, 0);
+		   		FileChunk chunk = new FileChunk(clientDir, filename);
 		   		chunk.read();
-		   		s.receiveFile(chunk);
+		   		server.receiveFile(chunk);
 		   	} else {
 		   		System.out.println("File " + clientDir + filename + " doesn't exist!");
 		   		System.exit(-2);

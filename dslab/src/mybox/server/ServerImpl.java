@@ -1,6 +1,6 @@
 package mybox.server;
 
-
+import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.rmi.*;
@@ -9,6 +9,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import mybox.io.FileChunk;
+import mybox.log.Log;
 
 public class ServerImpl extends UnicastRemoteObject implements ServerInterface {
 	private static final long serialVersionUID = 1L;
@@ -37,10 +38,17 @@ public class ServerImpl extends UnicastRemoteObject implements ServerInterface {
 
 	@Override
 	public void receiveFile(FileChunk chunk) throws RemoteException {
-		System.out.println("Writing file " + serverDir + chunk.getName());
-		String name = chunk.getName().replace('/', '_');
+		
+		File f = new File(chunk.getName());
+		String path = f.getParent();
+		
 		try {
-	       	chunk.write(new FileOutputStream(serverDir + name));
+			if(path != null) {
+				Log.info("Creating directories: " + serverDir + path);
+				(new File(serverDir + "/" + path + "/")).mkdirs();
+			}
+			Log.info("Writing file " + serverDir + chunk.getName());
+	       	chunk.write(new FileOutputStream(serverDir + chunk.getName()));
 	    } catch(IOException e) {
 	    	e.printStackTrace();
 	    }		
