@@ -3,7 +3,7 @@ package mybox.log;
 public class Log {
 	
 	public static void debug(final String output) {
-		String debug = System.getenv("OPENREG_DEBUG");
+		String debug = System.getenv("MYBOX_DEBUG");
 		if(debug != null && debug.equalsIgnoreCase("true")) {
 			print(output, LogType.DEBUG);
 		}
