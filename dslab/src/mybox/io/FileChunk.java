@@ -1,36 +1,44 @@
 package mybox.io;
 
 import java.io.*;
+import mybox.log.Log;
 
 public class FileChunk implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 	
+	private long lastModified;
+	private String checksum;
 	private String name;
-	private String directory;
 	private byte[] data;
 
-	public FileChunk(String clientDir, String filename) {
+	public FileChunk(String filename) {
 		this.name = filename;
-		directory = clientDir;
 	}
-
+	
 	public String getName() {
 		return name;
 	}
 	
-	public String getDir() {
-		return directory;
+	public long lastModified() {
+		return lastModified;
 	}
 	
-	public void read() throws IOException {
+	public String getChecksum() {
+		return checksum;
+	}
+	
+	public void read(String directory) throws IOException {
 		FileInputStream inputStream = null;
 		try {
-			System.out.println("Reading file " + directory + name);
+			Log.debug("Reading file " + directory + name);
 			File file = new File(directory + name);
+			lastModified = file.lastModified();
 			data = new byte[(int) file.length()];
 			inputStream = new FileInputStream(file);
 			inputStream.read(data);
+			
+			checksum = FileTools.createSHA1checksum(directory + name);
 		} catch(Exception e) {
 			e.printStackTrace();
 		} finally {
@@ -39,7 +47,7 @@ public class FileChunk implements Serializable {
 			}
 		}
 	}
-
+	
 	public void write(OutputStream outputStream){
 		try {
 			outputStream.write(data);
