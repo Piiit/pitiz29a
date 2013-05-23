@@ -5,12 +5,8 @@ import java.io.File;
 import java.io.IOException;
 import java.rmi.Naming;
 import java.rmi.NotBoundException;
-
-import mybox.io.FileChunk;
-import mybox.server.ServerImpl;
+import mybox.io.RMIFileTools;
 import mybox.server.ServerInterface;
-
-
 
 /**
  * Scans a directory asynchronously and notifies if something has changed.
@@ -39,7 +35,7 @@ import mybox.server.ServerInterface;
 
 public class MyBoxClient {
 	
-	private static final String clientDir = "/Users/user/mybox/";
+	private static final String CLIENT_DIR = "/Users/user/mybox/";
 	
 	public static void directory(File dir) throws IOException{
 	    File[] files = dir.listFiles();
@@ -52,10 +48,26 @@ public class MyBoxClient {
 	
 	private static void usageInfo() {
 		System.out.println("Usage: java MyBoxClient <options> <command> <file>");
-		System.out.println(" - Available commands: get, put, status");
+		System.out.println(" - Available commands: sync, status");
 		System.out.println(" - Available options:");
 		System.out.println("   -s server address (default = localhost)");
 		System.out.println("   -h mybox home directory (default = ~/mybox)");
+	}
+	
+	public static void listFilesForFolder(final File folder, RMIFileTools rmiFT) throws Exception {
+	    for (final File fileEntry : folder.listFiles()) {
+	        if (fileEntry.isDirectory()) {
+	            listFilesForFolder(fileEntry, rmiFT);
+	        } else {
+	        	String myBoxDir = folder.getCanonicalPath().substring(CLIENT_DIR.length()-1);
+	        	if(myBoxDir.length() > 0) {
+	        		myBoxDir += "/";
+	        	}
+	        	
+	            System.out.println(myBoxDir + fileEntry.getName());
+	            rmiFT.upload(myBoxDir + fileEntry.getName());
+	        }
+	    }
 	}
 	
 	public static void main(String[] args) throws NotBoundException {	
@@ -81,17 +93,13 @@ public class MyBoxClient {
 		   	System.out.println("...connected!");
 		   	
 		   	System.out.println("Command: " + command + " " + filename);
-		   	File file = new File(clientDir + filename);
-		   	if(file.exists()) {
-		   		FileChunk chunk = new FileChunk(clientDir, filename);
-		   		chunk.read();
-		   		server.receiveFile(chunk);
-		   	} else {
-		   		System.out.println("File " + clientDir + filename + " doesn't exist!");
-		   		System.exit(-2);
-		   	}
-		} catch (IOException e) {
-			e.printStackTrace();
+		   	
+		   	RMIFileTools rmiFT = new RMIFileTools(server);
+		   	rmiFT.setClientFolder(CLIENT_DIR);
+
+		   	listFilesForFolder(new File(CLIENT_DIR), rmiFT);
+		   	
+		   	
 		} catch (Exception e) {
 			e.printStackTrace();
 		} 

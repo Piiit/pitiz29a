@@ -1,5 +1,9 @@
 package mybox.log;
 
+import java.text.DateFormat;
+import java.util.Calendar;
+import java.util.TimeZone;
+
 public class Log {
 	
 	public static void debug(final String output) {
@@ -22,11 +26,17 @@ public class Log {
 	}
 	
 	private static void print(String output, LogType type) {
-		output = type.toString() + ": " + output;
+		output = currentTimestamp() + " " + type.toString() + ": " + output;
 		if (type == LogType.ERROR) {
 			System.err.println(output);
 		} else {
 			System.out.println(output);
 		}
+	}
+	
+	public static String currentTimestamp() {
+		Calendar c = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
+		DateFormat f = DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.MEDIUM);
+		return f.format(c.getTime());
 	}
 }
