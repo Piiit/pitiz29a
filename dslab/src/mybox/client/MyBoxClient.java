@@ -1,11 +1,9 @@
 package mybox.client;
 
-
-import java.io.File;
-import java.io.IOException;
 import java.rmi.Naming;
 import java.rmi.NotBoundException;
 import mybox.io.RMIFileTools;
+import mybox.log.Log;
 import mybox.server.ServerInterface;
 
 /**
@@ -35,74 +33,57 @@ import mybox.server.ServerInterface;
 
 public class MyBoxClient {
 	
-	private static final String CLIENT_DIR = "/Users/user/mybox/";
-	
-	public static void directory(File dir) throws IOException{
-	    File[] files = dir.listFiles();
-	    for(File file:files){
-	        System.out.println(file.getCanonicalPath());
-	        if(file.listFiles() != null)
-	            directory(file);        
-	    }
-	} 
-	
-	private static void usageInfo() {
-		System.out.println("Usage: java MyBoxClient <options> <command> <file>");
-		System.out.println(" - Available commands: sync, status");
-		System.out.println(" - Available options:");
-		System.out.println("   -s server address (default = localhost)");
-		System.out.println("   -h mybox home directory (default = ~/mybox)");
-	}
-	
-	public static void listFilesForFolder(final File folder, RMIFileTools rmiFT) throws Exception {
-	    for (final File fileEntry : folder.listFiles()) {
-	        if (fileEntry.isDirectory()) {
-	            listFilesForFolder(fileEntry, rmiFT);
-	        } else {
-	        	String myBoxDir = folder.getCanonicalPath().substring(CLIENT_DIR.length()-1);
-	        	if(myBoxDir.length() > 0) {
-	        		myBoxDir += "/";
-	        	}
-	        	
-	            System.out.println(myBoxDir + fileEntry.getName());
-	            rmiFT.upload(myBoxDir + fileEntry.getName());
-	        }
-	    }
-	}
+	private static final String DEFAULT_CLIENT_DIR = "/Users/user/mybox/";
+	private static final int ERR_CLIENTDIR = 0x01;
+	private static final int ERR_UPLOAD = 0x02;
+	private static final int ERR_HANDSHAKE = 0x04;
 	
 	public static void main(String[] args) throws NotBoundException {	
 		
-		try {
-			
-			if(args.length == 1 && args[0].equalsIgnoreCase("help")) {
-				usageInfo();
-				System.exit(0);
-			}
-			
-			if(args.length != 3) {
-				System.out.println("Type 'java MyBoxClient help' for usage.");
-				System.exit(-1);
-			}
-			String serverName = args[0];
-			String command = args[1];
-			String filename = args[2];
-			
-			System.out.println("Welcome to myBox!");
-			System.out.println("...connecting to " + serverName);
-		   	ServerInterface server = (ServerInterface)Naming.lookup("//" + serverName + "/MyBoxService");
-		   	System.out.println("...connected!");
-		   	
-		   	System.out.println("Command: " + command + " " + filename);
-		   	
-		   	RMIFileTools rmiFT = new RMIFileTools(server);
-		   	rmiFT.setClientFolder(CLIENT_DIR);
+		Log.setEnvVariableForDebug("MYBOX_CLIENT_DEBUG");
+		
+		ServerInterface server = null;
+		
+		String serverName = "localhost";
+		String command = "sync";
+		String filename = ".";
+		
+		Log.info("Welcome to myBox!");
 
-		   	listFilesForFolder(new File(CLIENT_DIR), rmiFT);
-		   	
-		   	
+		
+		try {
+		   	server = (ServerInterface)Naming.lookup("//" + serverName + "/MyBoxService");
+			Log.info("Service lookup at '" + serverName + "' done.");
+			Log.info("Handshaking...");
+			server.sayHello();
 		} catch (Exception e) {
+			Log.error("Server offline? " + e.getMessage());
 			e.printStackTrace();
+			System.exit(ERR_HANDSHAKE);
 		} 
+
+	   	Log.debug("Command: " + command + " " + filename);
+	   	
+	   	RMIFileTools rmiFT = new RMIFileTools(server);
+
+	   	try {
+	   		rmiFT.setClientFolder(DEFAULT_CLIENT_DIR);
+	   	} catch (Exception e) {
+	   		Log.error(e.getMessage());
+			e.printStackTrace();
+	   		System.exit(ERR_CLIENTDIR);
+	   	}
+	   	
+	   	try {
+	   		rmiFT.uploadFolder();
+	   	} catch (Exception e) {
+	   		Log.error(e.getMessage());
+			e.printStackTrace();
+	   		System.exit(ERR_UPLOAD);
+	   	}
+	   	
+	   	Log.info("All operations successfull! Exiting...");
+	   	System.exit(0);
 	}
 
 }
