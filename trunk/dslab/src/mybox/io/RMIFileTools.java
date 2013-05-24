@@ -1,7 +1,10 @@
 package mybox.io;
 
 import java.io.File;
+import java.util.ArrayList;
 
+import mybox.database.DatabaseTools;
+import mybox.database.Row;
 import mybox.log.Log;
 import mybox.server.ServerInterface;
 
@@ -40,9 +43,31 @@ public class RMIFileTools {
 	   		throw new Exception("Client: File '" + getClientDir() + filename + "' doesn't exist!");
 	   	}
 	   	
+	   	ArrayList<Row> fileEntries = DatabaseTools.getQueryResult(
+				"SELECT * FROM mybox_files WHERE filename = ?",
+				filename
+				);
+		
+		Row fileEntry = fileEntries.size() == 0 ? null : fileEntries.get(0);
+		
+		if(fileEntry != null) {
+			long dbFilesize = fileEntry.getValueAsLong("size");
+			String checksum = FileTools.createSHA1checksum(getClientDir() + filename);
+			
+			Log.debug("SUM : " + checksum + "; " + fileEntry.getValueAsString("checksum"));
+			Log.debug("SIZE: " + file.length() + "; " + dbFilesize);
+			
+			if(dbFilesize == file.length() && checksum.equalsIgnoreCase(fileEntry.getValueAsString("checksum"))) {
+				Log.info("Skipping file '" + filename + "'.");
+				return;
+			}
+		} 
+
+		Log.info("Uploading file '" + filename + "'.");
 	   	FileChunk chunk = new FileChunk(filename);
    		chunk.read(getClientDir());
    		server.receiveFile(chunk);
+		
 	}
 	
 	private void uploadFolderRecursive(final File folder) throws Exception {
@@ -55,7 +80,7 @@ public class RMIFileTools {
 	        		myBoxDir += "/";
 	        	}
 	        	
-	            Log.debug("Uploading " + myBoxDir + fileEntry.getName());
+	            Log.debug("Checking " + myBoxDir + fileEntry.getName());
 	            upload(myBoxDir + fileEntry.getName());
 	        }
 	    }

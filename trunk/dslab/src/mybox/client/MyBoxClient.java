@@ -2,41 +2,26 @@ package mybox.client;
 
 import java.rmi.Naming;
 import java.rmi.NotBoundException;
+import mybox.database.DatabaseConnection;
 import mybox.io.RMIFileTools;
 import mybox.log.Log;
 import mybox.server.ServerInterface;
 
-/**
- * Scans a directory asynchronously and notifies if something has changed.
- * Creates a log that shows when something has been changed.
- * States can be: DELETED, MODIFIED, MOVED
- * Deleted files should be saved somewhere to enable a restore.
- * Log entries: TIME, STATE, FILE
- * Commands: COMMIT CHECKOUT
- * 
- * First iteration:
- * Scans two directories and synchronizes them. 
- * Copies every file that is not in conflict.
- * Conflicts are handled by renaming files and
- * writing log entries.
- * 
- * Second iteration:
- * Synch over network
- * 
- * Third iteration:
- * 
- * 
- * @author pemoser
- *
- */
-
+//TODO Ignore hidden files
+//TODO Create empty folders
+//TODO Lock files until they are uploaded/downloaded
+//TODO Download files from server
+//TODO Register client with ID and password
+//TODO Login with ID and password
 
 public class MyBoxClient {
 	
-	private static final String DEFAULT_CLIENT_DIR = "/Users/user/mybox/";
+	private static final int CLIENT_INDEXER_WAIT = 10000;
+	public static final String DEFAULT_CLIENT_DIR = "/Users/user/mybox/";
 	private static final int ERR_CLIENTDIR = 0x01;
 	private static final int ERR_UPLOAD = 0x02;
 	private static final int ERR_HANDSHAKE = 0x04;
+	private static final int ERR_DATABASE = 0x08;
 	
 	public static void main(String[] args) throws NotBoundException {	
 		
@@ -49,7 +34,6 @@ public class MyBoxClient {
 		String filename = ".";
 		
 		Log.info("Welcome to myBox!");
-
 		
 		try {
 		   	server = (ServerInterface)Naming.lookup("//" + serverName + "/MyBoxService");
@@ -61,7 +45,15 @@ public class MyBoxClient {
 			e.printStackTrace();
 			System.exit(ERR_HANDSHAKE);
 		} 
-
+		
+		try {
+			DatabaseConnection.setup("jdbc:postgresql://localhost/openreg?user=user&password=qwertz");
+		} catch (Exception e) {
+			Log.error("Unable to connect to specified database! " + e.getMessage());
+			e.printStackTrace();
+			System.exit(ERR_DATABASE);
+		}
+		
 	   	Log.debug("Command: " + command + " " + filename);
 	   	
 	   	RMIFileTools rmiFT = new RMIFileTools(server);
@@ -75,12 +67,21 @@ public class MyBoxClient {
 	   	}
 	   	
 	   	try {
-	   		rmiFT.uploadFolder();
+	   		while(true) {
+	   			rmiFT.uploadFolder();
+	   			Thread.sleep(CLIENT_INDEXER_WAIT);
+	   		}
 	   	} catch (Exception e) {
 	   		Log.error(e.getMessage());
 			e.printStackTrace();
 	   		System.exit(ERR_UPLOAD);
 	   	}
+	   	
+	   	try {
+			DatabaseConnection.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	   	
 	   	Log.info("All operations successfull! Exiting...");
 	   	System.exit(0);

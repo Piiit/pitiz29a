@@ -12,7 +12,7 @@ import mybox.log.Log;
 
 public class ServerImpl extends UnicastRemoteObject implements ServerInterface {
 	private static final long serialVersionUID = 1L;
-	private static final String SERVER_DIR = "/Users/user/mybox_server/";
+	public static final String SERVER_DIR = "/Users/user/mybox_server/";
 	
 	protected ServerImpl() throws RemoteException {
 		super();
