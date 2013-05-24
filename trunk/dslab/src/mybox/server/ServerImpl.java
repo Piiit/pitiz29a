@@ -66,4 +66,9 @@ public class ServerImpl extends UnicastRemoteObject implements ServerInterface {
 	    	e.printStackTrace();
 	    }		
 	}
+
+	@Override
+	public void sayHello() throws RemoteException, ServerNotActiveException {
+		Log.info("Handshaking with client " + RemoteServer.getClientHost());
+	}
 }

@@ -6,8 +6,17 @@ import java.util.TimeZone;
 
 public class Log {
 	
+	private static String envVariable = "PIWO_TOOLS_LOG";
+	
+	public static void setEnvVariableForDebug(final String var) {
+		if(var == null) {
+			throw new NullPointerException("Log environment variable is null!");
+		}
+		envVariable = var;
+	}
+	
 	public static void debug(final String output) {
-		String debug = System.getenv("MYBOX_DEBUG");
+		String debug = System.getenv(envVariable);
 		if(debug != null && debug.equalsIgnoreCase("true")) {
 			print(output, LogType.DEBUG);
 		}
@@ -27,6 +36,8 @@ public class Log {
 	
 	private static void print(String output, LogType type) {
 		output = currentTimestamp() + " " + type.toString() + ": " + output;
+		output = output.replaceAll("\\s", " ");
+		output = output.replaceAll(" {2,}", " ");
 		if (type == LogType.ERROR) {
 			System.err.println(output);
 		} else {
