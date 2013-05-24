@@ -1,5 +1,6 @@
 package mybox.io;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.security.MessageDigest;
@@ -41,5 +42,24 @@ public class FileTools {
 	    Log.debug(filename + "; checksum = " + sb.toString());
 	 
 	    return sb.toString();
+	}
+	
+	private static void fileWalkerRecursive(final File folder, FileWalker filewalker) throws Exception {
+	    for (final File fileEntry : folder.listFiles()) {
+	        if (fileEntry.isDirectory()) {
+	        	filewalker.isDirectory(fileEntry.getCanonicalPath());
+	            fileWalkerRecursive(fileEntry, filewalker);
+	        } else {
+	        	filewalker.isFile(fileEntry.getCanonicalPath());
+	        }
+	    }
+	}	
+	
+	public static void fileWalker(final String folder, FileWalker filewalker) throws Exception {
+		File f = new File(folder);
+		if(!f.isDirectory()) {
+			throw new Exception("FileWalker: Can't access '" + folder + "'.");
+		}
+		fileWalkerRecursive(f, filewalker);
 	}
 }
