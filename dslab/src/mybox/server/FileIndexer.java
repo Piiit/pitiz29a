@@ -78,7 +78,7 @@ public class FileIndexer extends Thread {
 				String filename = fileEntry.getValueAsString("filename");
 				File file = new File(ServerImpl.SERVER_DIR + "/" + filename);
 				Log.debug("Deleting entries from database: Check file " + filename);
-				if(!file.exists()) {
+				if(!file.exists() || file.isHidden()) {
 					DatabaseTools.executeUpdate("DELETE FROM mybox_files WHERE filename = ?", filename);
 				}
 			}

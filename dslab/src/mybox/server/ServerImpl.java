@@ -6,7 +6,6 @@ import java.io.IOException;
 import java.rmi.*;
 import java.rmi.server.*;
 import java.security.NoSuchAlgorithmException;
-
 import piwotools.io.FileTools;
 import piwotools.log.Log;
 import mybox.io.FileChunk;
@@ -33,29 +32,38 @@ public class ServerImpl extends UnicastRemoteObject implements ServerInterface {
 
 	@Override
 	public void receiveFile(FileChunk chunk) throws RemoteException {
-		
-		File f = new File(chunk.getName());
+
+		String filename = SERVER_DIR + chunk.getName();
+		File f = new File(filename);
 		String path = f.getParent();
 		
 		try {
 			
 			// Create folders, if they don't exist 
 			if(path != null) {
-				File serverDir = new File(SERVER_DIR + "/" + path + "/");
+				File serverDir = new File(path + "/");
 				if(!serverDir.exists()) {
 					Log.info("Creating directories: " + path);
 					serverDir.mkdirs();
 				}
 			}
 
-			// Write files, if they are new or have been changed since last synchronization run...
-			boolean fileExists = (new File(SERVER_DIR + chunk.getName())).exists();
-			String localFileChecksum = null;
+
+			//Skipping hidden files (this is done outside the fileExists-block, because on some systems
+			//hidden files are considered not existent...
+			boolean isHiddenFile = (new File(filename)).isHidden();
+			if(isHiddenFile) {
+				Log.debug("Skipping hidden file " + chunk.getName() + ".");
+				return;
+			}
 			
+			// Write files, if they are new or have been changed since last synchronization run...
+			boolean fileExists = (new File(filename)).exists();
+			String localFileChecksum = null;
 			if(fileExists) {
 				localFileChecksum = FileTools.createSHA1checksum(SERVER_DIR + chunk.getName()); 
 				if(localFileChecksum.equalsIgnoreCase(chunk.getChecksum())) {
-					Log.info("Skipping file " + chunk.getName() + ". Not modified since last update!");
+					Log.debug("Skipping file " + chunk.getName() + ". Not modified since last update!");
 					return;
 				} 
 			} 

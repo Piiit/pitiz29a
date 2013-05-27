@@ -27,7 +27,7 @@ public class MyBoxClient {
 	
 	public static void main(String[] args) throws NotBoundException {	
 		
-		Log.setEnvVariableForDebug("MYBOX_CLIENT_DEBUG2");
+		Log.setEnvVariableForDebug("MYBOX_CLIENT_DEBUG");
 		
 		ServerInterface server = null;
 		
