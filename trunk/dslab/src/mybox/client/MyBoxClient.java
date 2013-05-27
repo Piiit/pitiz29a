@@ -2,11 +2,13 @@ package mybox.client;
 
 import java.rmi.Naming;
 import java.rmi.NotBoundException;
-import mybox.database.DatabaseConnection;
+
+import piwotools.database.DatabaseConnection;
+import piwotools.log.Log;
 import mybox.io.RMIFileTools;
-import mybox.log.Log;
 import mybox.server.ServerInterface;
 
+//TODO Delete files from server when deleted from client
 //TODO Ignore hidden files
 //TODO Create empty folders
 //TODO Lock files until they are uploaded/downloaded
@@ -25,7 +27,7 @@ public class MyBoxClient {
 	
 	public static void main(String[] args) throws NotBoundException {	
 		
-		Log.setEnvVariableForDebug("MYBOX_CLIENT_DEBUG");
+		Log.setEnvVariableForDebug("MYBOX_CLIENT_DEBUG2");
 		
 		ServerInterface server = null;
 		
@@ -68,7 +70,9 @@ public class MyBoxClient {
 	   	
 	   	try {
 	   		while(true) {
+	   			Log.debug("Updating indexer...");
 	   			rmiFT.uploadFolder();
+	   			Log.debug("Update done. Next run in " + CLIENT_INDEXER_WAIT/1000 + " seconds.");
 	   			Thread.sleep(CLIENT_INDEXER_WAIT);
 	   		}
 	   	} catch (Exception e) {
