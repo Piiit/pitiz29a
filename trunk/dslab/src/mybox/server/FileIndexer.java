@@ -3,12 +3,12 @@ package mybox.server;
 import java.io.File;
 import java.util.ArrayList;
 
-import mybox.database.DatabaseConnection;
-import mybox.database.DatabaseTools;
-import mybox.database.Row;
+import piwotools.database.DatabaseConnection;
+import piwotools.database.DatabaseTools;
+import piwotools.database.Row;
+import piwotools.log.Log;
 import mybox.io.FileTools;
 import mybox.io.FileWalker;
-import mybox.log.Log;
 
 public class FileIndexer extends Thread {
 	
@@ -78,6 +78,7 @@ public class FileIndexer extends Thread {
 			for(Row fileEntry : fileEntries) {
 				String filename = fileEntry.getValueAsString("filename");
 				File file = new File(ServerImpl.SERVER_DIR + "/" + filename);
+				Log.debug("Deleting entries from database: Check file " + filename);
 				if(!file.exists()) {
 					DatabaseTools.executeUpdate("DELETE FROM mybox_files WHERE filename = ?", filename);
 				}
@@ -99,13 +100,13 @@ public class FileIndexer extends Thread {
 		
 		try {
 			while(true) {
-				Log.info("FileIndexer run " + countRuns + " started!");
+				Log.debug("FileIndexer run " + countRuns + " started!");
 				FileTools.fileWalker(ServerImpl.SERVER_DIR, new MyFileWalker());
 				if(countRuns % FILEINDEXER_REMOVE_DELETED == 0) {
-					Log.info("FileIndexer: Removing deleted files from database!");
+					Log.debug("FileIndexer: Removing deleted files from database!");
 					removeDeleted();
 				}
-				Log.info("FileIndexer run " + countRuns + " completed! Next start in " + FILEINDEXER_WAIT/1000 + " seconds.");
+				Log.debug("FileIndexer run " + countRuns + " completed! Next start in " + FILEINDEXER_WAIT/1000 + " seconds.");
 				sleep(FILEINDEXER_WAIT);
 				countRuns++;
 			}

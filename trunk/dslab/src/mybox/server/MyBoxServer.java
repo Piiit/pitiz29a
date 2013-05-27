@@ -2,7 +2,7 @@ package mybox.server;
 
 import java.rmi.*;
 
-import mybox.log.Log;
+import piwotools.log.Log;
 
 public class MyBoxServer { 
 	
@@ -13,12 +13,12 @@ public class MyBoxServer {
 
 	public static void main(String args[]) {
 		
-		Log.setEnvVariableForDebug("MYBOX_SERVER_DEBUG");
+		Log.setEnvVariableForDebug("MYBOX_SERVER_DEBUG2");
 		
-		Log.info("Starting file indexer...");
+		Log.debug("Starting file indexer...");
 		FileIndexer indexer = new FileIndexer();
 		indexer.start();
-		Log.info("File indexer running!");
+		Log.debug("File indexer running!");
 		
 		try {
 			new MyBoxServer();

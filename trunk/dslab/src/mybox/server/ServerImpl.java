@@ -6,9 +6,10 @@ import java.io.IOException;
 import java.rmi.*;
 import java.rmi.server.*;
 import java.security.NoSuchAlgorithmException;
+
+import piwotools.log.Log;
 import mybox.io.FileChunk;
 import mybox.io.FileTools;
-import mybox.log.Log;
 
 public class ServerImpl extends UnicastRemoteObject implements ServerInterface {
 	private static final long serialVersionUID = 1L;
@@ -70,5 +71,17 @@ public class ServerImpl extends UnicastRemoteObject implements ServerInterface {
 	@Override
 	public void sayHello() throws RemoteException, ServerNotActiveException {
 		Log.info("Handshaking with client " + RemoteServer.getClientHost());
+	}
+
+	@Override
+	public void createFolder(String myBoxDir) throws RemoteException {
+		File folder = new File(SERVER_DIR + myBoxDir);
+		
+		Log.debug("Request received: Create folder (if it doesn't exist) " + myBoxDir);
+		if(!folder.isDirectory()) {
+			folder.mkdirs();
+			Log.info("Created new directory " + myBoxDir);
+		}
+		
 	}
 }
