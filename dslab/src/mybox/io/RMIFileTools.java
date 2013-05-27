@@ -1,11 +1,12 @@
 package mybox.io;
 
 import java.io.File;
+import java.rmi.RemoteException;
 import java.util.ArrayList;
 
-import mybox.database.DatabaseTools;
-import mybox.database.Row;
-import mybox.log.Log;
+import piwotools.database.DatabaseTools;
+import piwotools.database.Row;
+import piwotools.log.Log;
 import mybox.server.ServerInterface;
 
 public class RMIFileTools {
@@ -52,14 +53,15 @@ public class RMIFileTools {
 		
 		if(fileEntry != null) {
 			long dbFilesize = fileEntry.getValueAsLong("size");
-			String checksum = FileTools.createSHA1checksum(getClientDir() + filename);
-			
-			Log.debug("SUM : " + checksum + "; " + fileEntry.getValueAsString("checksum"));
 			Log.debug("SIZE: " + file.length() + "; " + dbFilesize);
 			
-			if(dbFilesize == file.length() && checksum.equalsIgnoreCase(fileEntry.getValueAsString("checksum"))) {
-				Log.info("Skipping file '" + filename + "'.");
-				return;
+			if(dbFilesize == file.length()) {
+				String checksum = FileTools.createSHA1checksum(getClientDir() + filename);
+				Log.debug("SUM : " + checksum + "; " + fileEntry.getValueAsString("checksum"));
+				if (checksum.equalsIgnoreCase(fileEntry.getValueAsString("checksum"))) {
+					Log.debug("Skipping file '" + filename + "'.");
+					return;
+				}
 			}
 		} 
 
@@ -67,25 +69,31 @@ public class RMIFileTools {
 	   	FileChunk chunk = new FileChunk(filename);
    		chunk.read(getClientDir());
    		server.receiveFile(chunk);
-		
 	}
 	
 	private void uploadFolderRecursive(final File folder) throws Exception {
-	    for (final File fileEntry : folder.listFiles()) {
-	        if (fileEntry.isDirectory()) {
+    	String myBoxDir = folder.getCanonicalPath().substring(getClientDir().length()-1);
+    	if(myBoxDir.length() > 0) {
+    		myBoxDir = myBoxDir.substring(1) + "/";
+    	}
+
+    	for (final File fileEntry : folder.listFiles()) {
+	    	if (fileEntry.isDirectory()) {
+	        	createDirectoryIfNotExists(myBoxDir + fileEntry.getName());
 	            uploadFolderRecursive(fileEntry);
 	        } else {
-	        	String myBoxDir = folder.getCanonicalPath().substring(getClientDir().length()-1);
-	        	if(myBoxDir.length() > 0) {
-	        		myBoxDir += "/";
-	        	}
-	        	
 	            Log.debug("Checking " + myBoxDir + fileEntry.getName());
 	            upload(myBoxDir + fileEntry.getName());
 	        }
 	    }
 	}
 	
+	private void createDirectoryIfNotExists(String myBoxDir) throws RemoteException {
+		Log.debug("Sending request to server: Create directory " + myBoxDir);
+//		FileChunk chunk = new FileChunk(myBoxDir);
+		server.createFolder(myBoxDir);
+	}
+
 	public void uploadFolder(final String foldername) throws Exception {
 		File folder = new File(getClientDir() + foldername);
 	   	if(!folder.isDirectory()) {
