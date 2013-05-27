@@ -84,7 +84,11 @@ public class RMIFileTools {
 	            uploadFolderRecursive(fileEntry);
 	        } else {
 	            Log.debug("Checking " + myBoxDir + fileEntry.getName());
-	            upload(myBoxDir + fileEntry.getName());
+	            
+	            //Skipping hidden files...
+	            if(! (new File(myBoxDir + fileEntry.getName())).isHidden()) {
+	            	upload(myBoxDir + fileEntry.getName());
+	            }
 	        }
 	    }
 	}

@@ -13,7 +13,7 @@ public class MyBoxServer {
 
 	public static void main(String args[]) {
 		
-		Log.setEnvVariableForDebug("MYBOX_SERVER_DEBUG2");
+		Log.setEnvVariableForDebug("MYBOX_SERVER_DEBUG");
 		
 		Log.debug("Starting file indexer...");
 		FileIndexer indexer = new FileIndexer();
