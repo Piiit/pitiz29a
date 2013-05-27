@@ -20,7 +20,6 @@ public class ServerImpl extends UnicastRemoteObject implements ServerInterface {
 
 	@Override
 	public void register(String name) throws RemoteException {
-		// TODO Auto-generated method stub
 		
 	}
 
