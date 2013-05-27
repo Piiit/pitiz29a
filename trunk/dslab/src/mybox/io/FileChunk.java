@@ -2,6 +2,7 @@ package mybox.io;
 
 import java.io.*;
 
+import piwotools.io.FileTools;
 import piwotools.log.Log;
 
 public class FileChunk implements Serializable {

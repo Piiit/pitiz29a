@@ -2,13 +2,12 @@ package mybox.server;
 
 import java.io.File;
 import java.util.ArrayList;
-
 import piwotools.database.DatabaseConnection;
 import piwotools.database.DatabaseTools;
 import piwotools.database.Row;
+import piwotools.io.FileTools;
+import piwotools.io.FileWalker;
 import piwotools.log.Log;
-import mybox.io.FileTools;
-import mybox.io.FileWalker;
 
 public class FileIndexer extends Thread {
 	
