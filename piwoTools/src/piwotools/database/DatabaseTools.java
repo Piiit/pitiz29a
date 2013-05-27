@@ -7,7 +7,6 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.util.ArrayList;
-
 import piwotools.log.Log;
 
 /**
@@ -43,6 +42,16 @@ public class DatabaseTools {
 	public static ArrayList<Row> getQueryResult(final String query) throws Exception {
 		return getQueryResult(query, new Object[0]);
 	}
+	
+	public static Row getOneRowQueryResult(final String query, final Object... parameters) throws Exception {
+		ArrayList<Row> data = getQueryResult(query, parameters);
+		return (data.size() == 0) ? null : data.get(0);
+	}
+
+	public static Row getOneRowQueryResult(final String query) throws Exception {
+		return getOneRowQueryResult(query, new Object[0]);
+	}
+
 	
 	public static Object executeUpdate(final String query, final Object... parameters) throws Exception {
 		Connection con = DatabaseConnection.getConnection();
