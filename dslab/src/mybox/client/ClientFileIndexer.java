@@ -102,12 +102,14 @@ public class ClientFileIndexer extends FileIndexer {
 				
 				if(dbFilesize != f.length() || data.getValueAsDate("modified").before(fileTimestamp)) {
 					Log.info("File '" + myboxFilename + "' has been changed.");
-					DatabaseTools.executeUpdate("UPDATE mybox_client_files SET checksum=?, size=?, modified=?, version=? " +
+					DatabaseTools.executeUpdate(
+							"UPDATE mybox_client_files SET checksum=?, size=?, modified=?, version=?, deleted=? " +
 							"WHERE client=? AND filename=?",
 							FileTools.createSHA1checksum(filename),
 							f.length(),
 							fileTimestamp,
 							data.getValueAsLong("version") + 1,
+							false,
 							clientId, 
 							myboxFilename
 							);
