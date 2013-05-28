@@ -1,17 +1,22 @@
-package mybox.client;
+package mybox.server;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.Calendar;
+
 import piwotools.database.DatabaseTools;
 import piwotools.database.Row;
 import piwotools.io.FileTools;
 import piwotools.log.Log;
 import mybox.io.FileIndexer;
 
-public class ClientFileIndexer extends FileIndexer {
+public class ServerFileIndexer extends FileIndexer {
 	
+	private static final int FILEINDEXER_REMOVE_DELETED = 10;	//Remove deleted files from database every n-th run...
+	private static int countRuns = 0;
 	private String id;
 	
-	public ClientFileIndexer(String clientId, String directory) {
+	public ServerFileIndexer(String clientId, String directory) {
 		super();
 		this.id = clientId;
 		setDirectory(directory);
@@ -75,6 +80,7 @@ public class ClientFileIndexer extends FileIndexer {
 				return;
 			}
 
+			//TODO Take all files at once, and compare them...
 			Row data = DatabaseTools.getOneRowQueryResult(
 					"SELECT * FROM mybox_client_files WHERE filename=? AND client=?", 
 					myboxFilename, 
@@ -123,9 +129,41 @@ public class ClientFileIndexer extends FileIndexer {
 	@Override
 	public void beforeRun() throws Exception {
 	}
+	
+	private void removeDeleted() {
+		try {
+			ArrayList<Row> fileEntries = DatabaseTools.getQueryResult(
+					"SELECT * FROM mybox_client_files WHERE client=? AND deleted=?",
+					id,
+					false
+					);
+			
+			for(Row fileEntry : fileEntries) {
+				
+				String filename = fileEntry.getValueAsString("filename");
+				File file = new File(ServerImpl.SERVER_DIR + "/" + filename);
+			
+				if(!file.exists() || file.isHidden()) {
+					Log.info("Found deleted file or directory: " + filename);
+					DatabaseTools.executeUpdate(
+							"UPDATE mybox_client_files SET deleted=?, modified=? WHERE filename=? AND client=?", 
+							true,
+							new java.sql.Timestamp(Calendar.getInstance().getTime().getTime()),
+							filename,
+							id
+							);				}
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
 
 	@Override
 	public void duringRun() throws Exception {
+		if(countRuns % FILEINDEXER_REMOVE_DELETED == 0) {
+			Log.debug("FileIndexer: Removing deleted files from database!");
+			removeDeleted();
+		}
 	}
 
 	@Override

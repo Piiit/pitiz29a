@@ -2,7 +2,7 @@ package mybox.client;
 
 import java.io.File;
 import java.util.ArrayList;
-
+import java.util.Calendar;
 import piwotools.database.DatabaseTools;
 import piwotools.database.Row;
 import piwotools.log.Log;
@@ -49,8 +49,9 @@ public class DeletionDetector extends Thread {
 					if(!file.exists() || file.isHidden()) {
 						Log.info("Found deleted file or directory: " + filename);
 						DatabaseTools.executeUpdate(
-								"UPDATE mybox_client_files SET deleted=? WHERE filename=? AND client=?", 
+								"UPDATE mybox_client_files SET deleted=?, modified=? WHERE filename=? AND client=?", 
 								true,
+								new java.sql.Timestamp(Calendar.getInstance().getTime().getTime()),
 								filename,
 								clientId
 								);
