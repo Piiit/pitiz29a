@@ -2,14 +2,13 @@ package mybox.io;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Calendar;
 import piwotools.database.DatabaseTools;
 import piwotools.database.Row;
 import piwotools.log.Log;
 
 public class DeletedFileRemover extends Thread {
 	
-	private static final int DEFAULT_WAIT = 10000;
+	private static final int DEFAULT_WAIT = 30000;
 	
 	private String directory;
 	private String id;
