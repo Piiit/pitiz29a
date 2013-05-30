@@ -182,9 +182,6 @@ public class ClientFileIndexer extends FileIndexer {
 //					if(!clientFileInfo.getValueAsBoolean("deleted") && (serverVersion - 1) == syncVersion && version == syncVersion) {
 //						
 //					}
-					
-					
-					
 //				}
 			}
 		} catch (Exception e) {
