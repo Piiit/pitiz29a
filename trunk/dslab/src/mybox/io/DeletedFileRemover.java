@@ -26,10 +26,7 @@ public class DeletedFileRemover extends Thread {
 		return DatabaseTools.getQueryResult(
 				"SELECT * FROM mybox_client_files " +
 				"WHERE client=? " +
-				"AND deleted=?" +
-				"AND filename IN (SELECT filename FROM mybox_client_files WHERE client<>? AND deleted=?)",
-				id,
-				false,
+				"AND deleted=?", 
 				id,
 				true);
 	}
@@ -41,22 +38,22 @@ public class DeletedFileRemover extends Thread {
 				for(Row fileEntry : filesToDelete) {
 					String filename = directory + fileEntry.getValueAsString("filename");
 					File file = new File(filename);
-					if(file.exists()) {
-						if(!file.delete()) {
-							throw new Exception("Can't delete file " + filename);
-						}
+					if(file.exists() && file.delete()) {
+						Log.info("DeletedFileRemover: Removing file " + fileEntry.getValueAsString("filename"));
+					} else {
+						Log.warn("DeletedFileRemover: Can't delete file or directory " + filename);
 					}
-					Log.info("DeletedFileRemover: Removing file " + fileEntry.getValueAsString("filename"));
-					DatabaseTools.executeUpdate(
-							"UPDATE mybox_client_files SET deleted=?, modified=?, version=? " +
-							"WHERE filename=? AND client=? AND deleted=?", 
-							true,
-							new java.sql.Timestamp(Calendar.getInstance().getTime().getTime()),
-							fileEntry.getValueAsLong("version") + 1,
-							fileEntry.getValueAsString("filename"),
-							id,
-							false
-							);
+					
+//					DatabaseTools.executeUpdate(
+//							"UPDATE mybox_client_files SET deleted=?, modified=?, version=? " +
+//							"WHERE filename=? AND client=? AND deleted=?", 
+//							true,
+//							new java.sql.Timestamp(Calendar.getInstance().getTime().getTime()),
+//							fileEntry.getValueAsLong("version") + 1,
+//							fileEntry.getValueAsString("filename"),
+//							id,
+//							false
+//							);
 				}
 				sleep(waitInterval);
 			}

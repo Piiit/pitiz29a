@@ -30,7 +30,7 @@ public class MyBoxServer {
 //			fileIndexer.start();
 			
 			DeletedFileRemover fileRemover = new DeletedFileRemover("MYBOX_SERVER", ServerImpl.SERVER_DIR);
-//			fileRemover.start();
+			fileRemover.start();
 			
 			DeletionDetector deletionDetector = new DeletionDetector("MYBOX_SERVER", ServerImpl.SERVER_DIR);
 //			deletionDetector.start();

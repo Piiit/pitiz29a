@@ -1,5 +1,6 @@
 package mybox.query;
 
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import piwotools.database.DatabaseTools;
 import piwotools.database.Row;
@@ -23,7 +24,7 @@ public class MyBoxQueryTools {
 				"	AND mcf2.version <= mcf0.version " +
 				")  " +
 				"OR filename NOT IN ( " +
-				"	SELECT filename FROM mybox_client_files mcf2 " +
+				"	SELECT filename FROM mybox_client_files " +
 				"	WHERE client = ? " +
 				")) ",
 				clientId,
@@ -54,19 +55,19 @@ public class MyBoxQueryTools {
 				);
 	}
 	
-	public static void updateServerEntry(String filename, String clientId) throws Exception {
-		Row clientData = DatabaseTools.getOneRowQueryResult(
-				"SELECT * FROM mybox_client_files WHERE filename=? AND client=?",
-				filename,
-				clientId
-				);
-
-		Row serverData = getServerFileInfo(filename);
+	public static void updateServerEntryAndSyncVersion(Row clientData, Row serverData) throws Exception {
+		
+		if(serverData != null && !clientData.getValueAsString("filename").equals(serverData.getValueAsString("filename"))) {
+			throw new Exception("Can't update server entry ");
+		}
+		
+		String clientId = clientData.getValueAsString("client");
 		
 		if(serverData == null) {
 			DatabaseTools.executeUpdate(
-					"INSERT INTO mybox_client_files (version, checksum, locked, size, modified, filename, client) " +
+					"INSERT INTO mybox_client_files (deleted, version, checksum, locked, size, modified, filename, client) " +
 					"VALUES (?,?,?,?,?,?,?)",
+					clientData.getValueAsBoolean("deleted"),
 					clientData.getValueAsLong("version"),
 					clientData.getValueAsString("checksum"),
 					clientData.getValueAsBoolean("locked"),
@@ -77,8 +78,9 @@ public class MyBoxQueryTools {
 					);
 		} else {
 			DatabaseTools.executeUpdate(
-					"UPDATE mybox_client_files SET version=?, checksum=?, locked=?, size=?, modified=? " +
+					"UPDATE mybox_client_files SET deleted=?, version=?, checksum=?, locked=?, size=?, modified=? " +
 					"WHERE filename=? AND client=?",
+					clientData.getValueAsBoolean("deleted"),
 					clientData.getValueAsLong("version"),
 					clientData.getValueAsString("checksum"),
 					clientData.getValueAsBoolean("locked"),
@@ -98,10 +100,74 @@ public class MyBoxQueryTools {
 	}
 	
 	public static Row getServerFileInfo(String filename) throws Exception {
+		return getFileInfo(SERVERID, filename);
+	}
+
+	public static Row getFileInfo(String id, String filename) throws Exception {
 		return DatabaseTools.getOneRowQueryResult(
 				"SELECT * FROM mybox_client_files WHERE filename=? AND client=?",
 				filename,
-				SERVERID
+				id
 				);
 	}
+	
+	public static void insertFile(String client, String filename, String checksum, long size, Timestamp modified, long version, long syncVersion) throws Exception {
+		DatabaseTools.executeUpdate(
+				"INSERT INTO mybox_client_files (client, filename, checksum, size, modified, version, sync_version) VALUES (?,?,?,?,?,?,?)",
+				client,
+				filename,
+				checksum,
+				size,
+				modified,
+				version,
+				syncVersion
+				);
+	}
+	
+	public static void insertDirectory(String client, String filename, Timestamp modified, long version, long syncVersion) throws Exception {
+		DatabaseTools.executeUpdate(
+				"INSERT INTO mybox_client_files (client, filename, modified, version, sync_version) VALUES (?,?,?,?,?)",
+				client,
+				filename,
+				modified,
+				version,
+				syncVersion
+				);
+	}
+	
+	public static void insertServerDirectory(String filename, Timestamp modified, long version) throws Exception {
+		insertDirectory(SERVERID, filename, modified, version, 0);
+	}
+
+	public static void updateServerDeleted(String filename, boolean deleted) throws Exception {
+		DatabaseTools.executeUpdate(
+				"UPDATE mybox_client_files SET deleted=? WHERE client=? AND filename=?",
+				deleted,
+				SERVERID,
+				filename);
+	}
+	
+	public static void updateFile(String client, String filename, String checksum, long size, Timestamp modified, long version, long syncVersion) throws Exception {
+		DatabaseTools.executeUpdate(
+				"UPDATE mybox_client_files SET checksum=?, size=?, modified=?, version=?, deleted=? " +
+				"WHERE client=? AND filename=?",
+				checksum,
+				size,
+				modified,
+				version,
+				false,
+				client, 
+				filename
+				);
+	}
+	
+	public static void updateDirectory(String client, String filename, Timestamp modified, long version, long syncVersion) throws Exception {
+		updateFile(client, filename, null, 0, modified, version, syncVersion);
+	}
+
+	public static void updateServerFile(String filename, String checksum, long size, Timestamp modified, long version) throws Exception {
+		updateFile(SERVERID, filename, checksum, size, modified, version, 0);
+		
+	}
+	
 }
