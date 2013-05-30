@@ -5,6 +5,8 @@ import piwotools.database.DatabaseConnection;
 import piwotools.log.Log;
 import mybox.io.DeletedFileRemover;
 import mybox.io.DeletionDetector;
+import mybox.network.FileClient;
+import mybox.network.FileServer;
 
 public class MyBoxClient {
 	
@@ -30,16 +32,21 @@ public class MyBoxClient {
 		DeletionDetector deletionDetector = new DeletionDetector("pemoser", DEFAULT_CLIENT_DIR);
 		deletionDetector.start();
 		
-		FileClient fileClient = new FileClient("pemoser", DEFAULT_CLIENT_DIR);
-		fileClient.start();
+		FileClient fileClient = new FileClient("pemoser", DEFAULT_CLIENT_DIR, "localhost", 13267);
+//		fileClient.start();
+		
+		FileServer fileServer = new FileServer(DEFAULT_CLIENT_DIR, 13268);
+//		fileServer.start();
 		
 		DeletedFileRemover deletedFileRemover = new DeletedFileRemover("pemoser", DEFAULT_CLIENT_DIR);
 		deletedFileRemover.start();
 		
 		try {
 			fileIndexer.join();
+			Thread.sleep(10000);
 			deletionDetector.join();
 			fileClient.join();
+			fileServer.join();
 			deletedFileRemover.join();
 		} catch (InterruptedException e1) {
 			e1.printStackTrace();
