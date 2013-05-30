@@ -14,10 +14,13 @@ public class RMIFileTools {
 	
 	private ServerInterface server;
 	private String clientDir;
+	private String clientId;
 	
-	public RMIFileTools(ServerInterface server) {
+	public RMIFileTools(ServerInterface server, String clientDir, String clientId) throws Exception {
 		super();
 		this.server = server;
+		setClientFolder(clientDir);
+		this.clientId = clientId;
 	}
 	
 	public void setClientFolder(String clientDir) throws Exception {
@@ -46,27 +49,28 @@ public class RMIFileTools {
 	   	}
 	   	
 	   	ArrayList<Row> fileEntries = DatabaseTools.getQueryResult(
-				"SELECT * FROM mybox_files WHERE filename = ?",
-				filename
+				"SELECT * FROM mybox_client_files WHERE filename=? AND client=?",
+				filename,
+				"MYBOX_SERVER"
 				);
 		
 		Row fileEntry = fileEntries.size() == 0 ? null : fileEntries.get(0);
 		
 		if(fileEntry != null) {
 			long dbFilesize = fileEntry.getValueAsLong("size");
-			Log.debug("SIZE: " + file.length() + "; " + dbFilesize);
+//			Log.debug("SIZE: " + file.length() + "; " + dbFilesize);
 			
 			if(dbFilesize == file.length()) {
 				String checksum = FileTools.createSHA1checksum(getClientDir() + filename);
-				Log.debug("SUM : " + checksum + "; " + fileEntry.getValueAsString("checksum"));
+//				Log.debug("SUM : " + checksum + "; " + fileEntry.getValueAsString("checksum"));
 				if (checksum.equalsIgnoreCase(fileEntry.getValueAsString("checksum"))) {
-					Log.debug("Skipping file '" + filename + "'.");
+//					Log.debug("Skipping file '" + filename + "'.");
 					return;
 				}
 			}
 		} 
 
-		Log.info("Uploading file '" + filename + "'.");
+		Log.info("Client " + clientId + ": Uploading file '" + filename + "'.");
 	   	FileChunk chunk = new FileChunk(filename);
    		chunk.read(getClientDir());
    		server.receiveFile(chunk);

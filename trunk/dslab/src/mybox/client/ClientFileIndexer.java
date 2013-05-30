@@ -86,6 +86,7 @@ public class ClientFileIndexer extends FileIndexer {
 			//New file found...
 			if(data == null) {
 				Log.info("New file '" + myboxFilename + "' found.");
+				//TODO Check if a file with the same name has been deleted from server before... restore states!
 				DatabaseTools.executeUpdate(
 						"INSERT INTO mybox_client_files (client, filename, checksum, size, modified, version) VALUES (?,?,?,?,?,?)",
 						id,
@@ -95,24 +96,55 @@ public class ClientFileIndexer extends FileIndexer {
 						fileTimestamp,
 						0
 						);
+				
+
 			} else {
 				
 				//File changed?
 				long dbFilesize = data.getValueAsLong("size");
 				
 				if(dbFilesize != f.length() || data.getValueAsDate("modified").before(fileTimestamp)) {
+
+					String checksum = FileTools.createSHA1checksum(filename);
+
+					long version = data.getValueAsLong("version");
+					if(!checksum.equalsIgnoreCase(data.getValueAsStringNotNull("checksum"))) {
+						version++;
+					}
+					
 					Log.info("File '" + myboxFilename + "' has been changed.");
 					DatabaseTools.executeUpdate(
 							"UPDATE mybox_client_files SET checksum=?, size=?, modified=?, version=?, deleted=? " +
 							"WHERE client=? AND filename=?",
-							FileTools.createSHA1checksum(filename),
+							checksum,
 							f.length(),
 							fileTimestamp,
-							data.getValueAsLong("version") + 1,
+							version,
 							false,
 							id, 
 							myboxFilename
 							);
+					
+					//If server_file is deleted and server_version < version... change server_state to deleted=false 
+					Row serverData = DatabaseTools.getOneRowQueryResult(
+							"SELECT * FROM mybox_client_files WHERE client=? AND filename=?",
+							"MYBOX_SERVER",
+							myboxFilename);
+					
+					if(serverData.getValueAsBoolean("deleted") && serverData.getValueAsLong("version") < version) {
+						Log.info("Deleted file restored! " + filename);
+						DatabaseTools.executeUpdate(
+								"UPDATE mybox_client_files SET checksum=?, size=?, modified=?, version=?, deleted=? " +
+								"WHERE client=? AND filename=?",
+								checksum,
+								f.length(),
+								fileTimestamp,
+								version,
+								false,
+								"MYBOX_SERVER", 
+								myboxFilename
+								);
+					}
 				}
 			}
 		} catch (Exception e) {

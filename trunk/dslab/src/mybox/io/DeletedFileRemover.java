@@ -1,27 +1,36 @@
-package mybox.server;
+package mybox.io;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Calendar;
-
 import piwotools.database.DatabaseTools;
 import piwotools.database.Row;
 import piwotools.log.Log;
 
 public class DeletedFileRemover extends Thread {
 	
-	private static final String SERVERID = "MYBOX_SERVER";
 	private static final int DEFAULT_WAIT = 10000;
-
-	private int waitInterval = DEFAULT_WAIT;
 	
+	private String directory;
+	private String id;
+	private int waitInterval = DEFAULT_WAIT;
+
+	
+	public DeletedFileRemover(String id, String directory) {
+		super();
+		this.directory = directory;
+		this.id = id;
+	}
+
 	private ArrayList<Row> getRemovingRequests() throws Exception {
 		return DatabaseTools.getQueryResult(
 				"SELECT * FROM mybox_client_files " +
 				"WHERE client=? " +
+				"AND deleted=?" +
 				"AND filename IN (SELECT filename FROM mybox_client_files WHERE client<>? AND deleted=?)",
-				SERVERID,
-				SERVERID,
+				id,
+				false,
+				id,
 				true);
 	}
 	
@@ -30,29 +39,25 @@ public class DeletedFileRemover extends Thread {
 			while(true) {
 				ArrayList<Row> filesToDelete = getRemovingRequests();
 				for(Row fileEntry : filesToDelete) {
-					Log.debug("Removing file " + fileEntry.getValueAsString("filename"));
-					String filename = ServerImpl.SERVER_DIR + fileEntry.getValueAsString("filename");
+					String filename = directory + fileEntry.getValueAsString("filename");
 					File file = new File(filename);
 					if(file.exists()) {
 						if(!file.delete()) {
 							throw new Exception("Can't delete file " + filename);
 						}
 					}
+					Log.info("DeletedFileRemover: Removing file " + fileEntry.getValueAsString("filename"));
 					DatabaseTools.executeUpdate(
-							"UPDATE mybox_client_files SET deleted=?, modified=? WHERE filename=? AND client=?", 
+							"UPDATE mybox_client_files SET deleted=?, modified=?, version=? " +
+							"WHERE filename=? AND client=? AND deleted=?", 
 							true,
 							new java.sql.Timestamp(Calendar.getInstance().getTime().getTime()),
-							filename,
-							SERVERID
+							fileEntry.getValueAsLong("version") + 1,
+							fileEntry.getValueAsString("filename"),
+							id,
+							false
 							);
 				}
-				
-				DatabaseTools.executeUpdate(
-						"DELETE FROM mybox_client_files WHERE client<>? AND deleted=?",
-						SERVERID,
-						true
-						);
-				
 				sleep(waitInterval);
 			}
 		} catch (Exception e) {
