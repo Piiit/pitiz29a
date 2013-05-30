@@ -17,7 +17,7 @@ public final class DatabaseConnection {
 	private static Connection connection = null;
 	
 	public static void setup(final String connectionURL) throws Exception {
-		Log.info("Connecting to " + safeConnectionURL(connectionURL));
+		Log.debug("Connecting to " + safeConnectionURL(connectionURL));
 		Class.forName("org.postgresql.Driver");
 		DriverManager.setLoginTimeout(LOGINTIMEOUT);
 		connection = DriverManager.getConnection(connectionURL);
