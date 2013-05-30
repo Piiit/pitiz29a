@@ -30,7 +30,14 @@ public class Row {
 		}
 		return data.get(key).toString();
 	}
-	
+
+	public Boolean getValueAsBoolean(String key) {
+		if(data.get(key) == null) {
+			return null;
+		}
+		return (Boolean)data.get(key);
+	}
+
 	public Long getValueAsLong(String key) {
 		if(data.get(key) == null) {
 			return null;
