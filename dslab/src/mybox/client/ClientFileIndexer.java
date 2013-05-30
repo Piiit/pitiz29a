@@ -2,12 +2,11 @@ package mybox.client;
 
 import java.io.File;
 import java.sql.Timestamp;
-
-import piwotools.database.DatabaseTools;
 import piwotools.database.Row;
 import piwotools.io.FileTools;
 import piwotools.log.Log;
 import mybox.io.FileIndexer;
+import mybox.network.FileClientSingle;
 import mybox.query.MyBoxQueryTools;
 
 public class ClientFileIndexer extends FileIndexer {
@@ -18,6 +17,12 @@ public class ClientFileIndexer extends FileIndexer {
 		super();
 		this.id = clientId;
 		setDirectory(directory);
+	}
+	
+	private void uploadAsync(String filename) throws InterruptedException {
+		FileClientSingle fileClient = new FileClientSingle(id, getDirectory(), filename, "localhost", 13267);
+		fileClient.start();
+//		fileClient.join();
 	}
 	
 	private void handleChanges(String filename, boolean isFile) {
@@ -50,6 +55,9 @@ public class ClientFileIndexer extends FileIndexer {
 						//nothing to do on server side for files... FileClient should do the job!
 						String checksum = FileTools.createSHA1checksum(filename);
 						MyBoxQueryTools.insertFile(id, myboxFilename, checksum, file.length(), fileTimestamp, 0, 0);
+						
+						uploadAsync(myboxFilename);
+						
 					} else {
 						MyBoxQueryTools.insertDirectory(id, myboxFilename, fileTimestamp, 0, 0);
 						MyBoxQueryTools.insertServerDirectory(myboxFilename, fileTimestamp, 0);
@@ -65,6 +73,9 @@ public class ClientFileIndexer extends FileIndexer {
 					if(isFile) {
 						String checksum = FileTools.createSHA1checksum(filename);
 						MyBoxQueryTools.insertFile(id, myboxFilename, checksum, file.length(), fileTimestamp, version, version);
+						
+						uploadAsync(myboxFilename);
+						
 					} else {
 						MyBoxQueryTools.insertDirectory(id, myboxFilename, fileTimestamp, version, version);
 					}
@@ -94,6 +105,9 @@ public class ClientFileIndexer extends FileIndexer {
 						throw new Exception("Not possible to move " + typeString + " " + filename);
 		    	    }
 					MyBoxQueryTools.insertFile(id, myboxFilename + newFilenameExtension, checksum, file.length(), fileTimestamp, 0, 0);
+					
+					uploadAsync(myboxFilename + newFilenameExtension);
+					
 					return;
 				} 
 				
@@ -103,14 +117,14 @@ public class ClientFileIndexer extends FileIndexer {
 			}					
 				
 			//File changed, client file info present...
-			long dbFilesize = clientFileInfo.getValueAsLong("size");
+			long dbFilesize = isFile ? clientFileInfo.getValueAsLong("size") : 0;
 			
-			if(dbFilesize != file.length() || clientFileInfo.getValueAsDate("modified").before(fileTimestamp)) {
+			if((isFile && dbFilesize != file.length()) || clientFileInfo.getValueAsDate("modified").before(fileTimestamp)) {
 
-				String checksum = FileTools.createSHA1checksum(filename);
+				String checksum = isFile ? FileTools.createSHA1checksum(filename) : null;
 
 				long version = clientFileInfo.getValueAsLong("version");
-				if(!checksum.equalsIgnoreCase(clientFileInfo.getValueAsStringNotNull("checksum")) || clientFileInfo.getValueAsBoolean("deleted")) {
+				if((isFile  && !checksum.equalsIgnoreCase(clientFileInfo.getValueAsStringNotNull("checksum"))) || clientFileInfo.getValueAsBoolean("deleted")) {
 					version++;
 				}
 				
@@ -120,6 +134,7 @@ public class ClientFileIndexer extends FileIndexer {
 				if(serverFileInfo == null) {
 					if(isFile) {
 						MyBoxQueryTools.updateFile(id, myboxFilename, checksum, file.length(), fileTimestamp, version, version);
+						uploadAsync(myboxFilename);
 					} else {
 						MyBoxQueryTools.updateDirectory(id, myboxFilename, fileTimestamp, version, version);
 					}
@@ -137,18 +152,29 @@ public class ClientFileIndexer extends FileIndexer {
 					long serverVersion = serverFileInfo.getValueAsLong("version");
 					long syncVersion = clientFileInfo.getValueAsLong("sync_version");
 //					if(clientFileInfo.getValueAsBoolean("deleted") && serverVersion == syncVersion) {
-					if(serverVersion == syncVersion || checksum.equalsIgnoreCase(serverFileInfo.getValueAsString("checksum"))) {
-						Log.info("Deleted " + typeString + " restored! " + filename);
+					if(serverVersion == syncVersion || (checksum.equalsIgnoreCase(serverFileInfo.getValueAsString("checksum")) && !clientFileInfo.getValueAsBoolean("deleted"))) {
+//						Log.info("Deleted " + typeString + " restored! " + filename);
 						if(isFile) {
 							MyBoxQueryTools.updateFile(id, myboxFilename, checksum, file.length(), fileTimestamp, version, version);
+							uploadAsync(myboxFilename);
 						} else {
 							MyBoxQueryTools.updateDirectory(id, myboxFilename, fileTimestamp, version, version);
 						}
-						MyBoxQueryTools.updateServerFile(myboxFilename, checksum, file.length(), fileTimestamp, version);
+						clientFileInfo = MyBoxQueryTools.getFileInfo(id, myboxFilename);
+						MyBoxQueryTools.updateServerEntryAndSyncVersion(clientFileInfo, serverFileInfo);
 						return;
 					}
 					
-					Log.warn("CONFLICT");
+					// Move local file, insert local file info with new name... do not insert the old filename, should be done by FileDownloader...
+					String newFilenameExtension = "(OUT OF SYNC " + id + ")";
+					String newFilename = filename + newFilenameExtension ;
+					if(file.renameTo(new File(newFilename))) {
+						MyBoxQueryTools.insertFile(id, myboxFilename + newFilenameExtension, checksum, file.length(), fileTimestamp, 0, 0);
+						return;
+					}
+					
+					Log.error("CONFLICT: Not possible to move " + typeString + " " + filename + " to " + newFilename);
+					throw new Exception("Not possible to move " + typeString + " " + filename);
 					
 					// If file has not been deleted on client side and the sync_version differs only by one, and now further 
 					// changes have been made... delete the file.
