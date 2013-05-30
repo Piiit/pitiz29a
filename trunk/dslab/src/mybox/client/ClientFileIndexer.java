@@ -119,7 +119,7 @@ public class ClientFileIndexer extends FileIndexer {
 			//File changed, client file info present...
 			long dbFilesize = isFile ? clientFileInfo.getValueAsLong("size") : 0;
 			
-			if((isFile && dbFilesize != file.length()) || clientFileInfo.getValueAsDate("modified").before(fileTimestamp)) {
+			if((isFile && dbFilesize != file.length()) || clientFileInfo.getValueAsDate("modified").before(fileTimestamp) || serverFileInfo == null) {
 
 				String checksum = isFile ? FileTools.createSHA1checksum(filename) : null;
 

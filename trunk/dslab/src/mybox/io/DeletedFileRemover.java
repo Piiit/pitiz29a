@@ -37,22 +37,13 @@ public class DeletedFileRemover extends Thread {
 				for(Row fileEntry : filesToDelete) {
 					String filename = directory + fileEntry.getValueAsString("filename");
 					File file = new File(filename);
-					if(file.exists() && file.delete()) {
-						Log.info("DeletedFileRemover: Removing file " + fileEntry.getValueAsString("filename"));
-					} else {
-						Log.warn("DeletedFileRemover: Can't delete file or directory " + filename);
+					if(file.exists()) {
+						if(file.delete()) {
+							Log.info("DeletedFileRemover: Removing file " + fileEntry.getValueAsString("filename"));
+						} else {
+							Log.warn("DeletedFileRemover: Can't delete file or directory " + filename);
+						}
 					}
-					
-//					DatabaseTools.executeUpdate(
-//							"UPDATE mybox_client_files SET deleted=?, modified=?, version=? " +
-//							"WHERE filename=? AND client=? AND deleted=?", 
-//							true,
-//							new java.sql.Timestamp(Calendar.getInstance().getTime().getTime()),
-//							fileEntry.getValueAsLong("version") + 1,
-//							fileEntry.getValueAsString("filename"),
-//							id,
-//							false
-//							);
 				}
 				sleep(waitInterval);
 			}
