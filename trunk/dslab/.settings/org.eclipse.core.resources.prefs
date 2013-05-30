@@ -1,6 +1,6 @@
 eclipse.preferences.version=1
 encoding//src/dslab09/ChatClient.java=UTF-8
 encoding//src/dslab09/MyChatServer.java=UTF-8
-encoding//src/mybox/client/FileClient.java=UTF-8
-encoding//src/mybox/server/FileServer.java=UTF-8
+encoding//src/mybox/network/FileClient.java=UTF-8
+encoding//src/mybox/network/FileServer.java=UTF-8
 encoding//src/mybox/server/MyBoxServer.java=UTF-8
