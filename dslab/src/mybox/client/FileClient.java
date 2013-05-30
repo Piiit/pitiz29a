@@ -28,10 +28,13 @@ public class FileClient extends Thread {
 				
 				for(Row fileEntry : fileEntries) {
 					String filename = fileEntry.getValueAsString("filename");
+					
+					MyBoxQueryTools.lockFile(filename, clientId);
+					
 					NetworkTools.uploadFile(directory + filename, hostname, port, filename);
 				
 					MyBoxQueryTools.unlockFile(filename, clientId);
-					MyBoxQueryTools.updateServerEntry(filename, clientId);
+					MyBoxQueryTools.updateServerEntryAndSyncVersion(fileEntry, MyBoxQueryTools.getServerFileInfo(filename));
 				}
 				
 				Log.debug("FileClient ready, next run in 10 seconds.");

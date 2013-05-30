@@ -63,16 +63,26 @@ public class DeletionDetector extends Thread {
 						
 						//Check if server file can be deleted...
 						Row serverData = MyBoxQueryTools.getServerFileInfo(filename);
-						System.out.println(serverData);
-						System.out.println(fileEntry);
-						if(serverData.getValueAsBoolean("locked") == false && serverData.getValueAsLong("version").equals(fileEntry.getValueAsLong("sync_version"))) {
-							DatabaseTools.executeUpdate(
-									"UPDATE mybox_client_files SET deleted=?, modified=? WHERE filename=? AND client=?", 
-									true,
-									new java.sql.Timestamp(Calendar.getInstance().getTime().getTime()),
-									filename,
-									MyBoxQueryTools.SERVERID
-									);
+						if(serverData != null) {
+							long serverVersion = serverData.getValueAsLong("version");
+							long clientSyncVersion = fileEntry.getValueAsLong("sync_version");
+							if(serverData.getValueAsBoolean("locked") == false && serverVersion <= clientSyncVersion) {
+								DatabaseTools.executeUpdate(
+										"UPDATE mybox_client_files SET deleted=?, modified=?, version=? WHERE filename=? AND client=?", 
+										true,
+										new java.sql.Timestamp(Calendar.getInstance().getTime().getTime()),
+										fileEntry.getValueAsLong("version") + 1,
+										filename,
+										MyBoxQueryTools.SERVERID
+										);
+								DatabaseTools.executeUpdate(
+										"UPDATE mybox_client_files SET sync_version=? WHERE filename=? AND client=?",
+										fileEntry.getValueAsLong("version") + 1,
+										filename,
+										id);
+							} else {
+								Log.warn("The file " + filename + " is out of synch!");
+							}
 						}
 					}
 				}
