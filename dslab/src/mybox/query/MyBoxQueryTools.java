@@ -66,7 +66,7 @@ public class MyBoxQueryTools {
 		if(serverData == null) {
 			DatabaseTools.executeUpdate(
 					"INSERT INTO mybox_client_files (deleted, version, checksum, locked, size, modified, filename, client) " +
-					"VALUES (?,?,?,?,?,?,?)",
+					"VALUES (?,?,?,?,?,?,?,?)",
 					clientData.getValueAsBoolean("deleted"),
 					clientData.getValueAsLong("version"),
 					clientData.getValueAsString("checksum"),
@@ -168,6 +168,15 @@ public class MyBoxQueryTools {
 	public static void updateServerFile(String filename, String checksum, long size, Timestamp modified, long version) throws Exception {
 		updateFile(SERVERID, filename, checksum, size, modified, version, 0);
 		
+	}
+
+	public static void unlockAllFiles(String clientId) throws Exception {
+		//TODO unlock also server files...
+		DatabaseTools.executeUpdate(
+				"UPDATE mybox_client_files m1 SET locked=? WHERE client=?",
+				false,
+				clientId
+				);
 	}
 	
 }

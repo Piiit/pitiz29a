@@ -4,6 +4,8 @@ import java.rmi.*;
 
 import mybox.io.DeletedFileRemover;
 import mybox.io.DeletionDetector;
+import mybox.network.FileClient;
+import mybox.network.FileServer;
 
 import piwotools.database.DatabaseConnection;
 import piwotools.log.Log;
@@ -35,12 +37,16 @@ public class MyBoxServer {
 			DeletionDetector deletionDetector = new DeletionDetector("MYBOX_SERVER", ServerImpl.SERVER_DIR);
 //			deletionDetector.start();
 			
-			FileServer fileServer = new FileServer();
+			FileServer fileServer = new FileServer(ServerImpl.SERVER_DIR, 13267);
 			fileServer.start();
+			
+			FileClient fileClient = new FileClient("MYBOX_SERVER", ServerImpl.SERVER_DIR, "localhost", 13268);
+//			fileClient.start();
 			
 			fileRemover.join();
 			fileIndexer.join();
 			fileServer.join();
+			fileClient.join();
 			deletionDetector.join();
 			
 		} catch (Exception e) {
