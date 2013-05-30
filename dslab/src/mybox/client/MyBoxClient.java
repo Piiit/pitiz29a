@@ -11,12 +11,14 @@ import mybox.network.FileServer;
 public class MyBoxClient {
 	
 	public static final String DEFAULT_CLIENT_DIR = "/Users/user/mybox/";
+	public static final String DEFAULT_SERVER = "localhost";
+	public static final int DEFAULT_PORT = 13267;
 	
 	public static void main(String[] args) throws NotBoundException {	
 		
-		Log.setEnvVariableForDebug("MYBOX_CLIENT_DEBUG");
+		Log.setEnvVariableForDebug("MYBOX_CLIENT_DEBUG2");
 		
-		Log.info("Welcome to myBox!");
+		Log.info("Welcome to myBox! Your MyBox directory is " + DEFAULT_CLIENT_DIR);
 		
 		try {
 			DatabaseConnection.setup("jdbc:postgresql://localhost/openreg?user=user&password=qwertz");
@@ -32,7 +34,7 @@ public class MyBoxClient {
 		DeletionDetector deletionDetector = new DeletionDetector("pemoser", DEFAULT_CLIENT_DIR);
 		deletionDetector.start();
 		
-		FileClient fileClient = new FileClient("pemoser", DEFAULT_CLIENT_DIR, "localhost", 13267);
+		FileClient fileClient = new FileClient("pemoser", DEFAULT_CLIENT_DIR, DEFAULT_SERVER, DEFAULT_PORT);
 //		fileClient.start();
 		
 		FileServer fileServer = new FileServer(DEFAULT_CLIENT_DIR, 13268);

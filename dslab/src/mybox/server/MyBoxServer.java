@@ -1,7 +1,5 @@
 package mybox.server;
 
-import java.rmi.*;
-
 import mybox.io.DeletedFileRemover;
 import mybox.io.DeletionDetector;
 import mybox.network.FileClient;
@@ -14,7 +12,7 @@ public class MyBoxServer {
 	
 	public static void main(String args[]) {
 		
-		Log.setEnvVariableForDebug("MYBOX_SERVER_DEBUG");
+		Log.setEnvVariableForDebug("MYBOX_SERVER_DEBUG2");
 		
 		try {
 			DatabaseConnection.setup("jdbc:postgresql://localhost/openreg?user=user&password=qwertz");
@@ -25,9 +23,8 @@ public class MyBoxServer {
 		}
 		
 		try {
-			ServerInterface c = new ServerImpl();
-			Naming.rebind("rmi://localhost/MyBoxService", c);
-			
+
+			//TODO Change & run it to check mismatches from clients...
 			ServerFileIndexer fileIndexer = new ServerFileIndexer("MYBOX_SERVER", ServerImpl.SERVER_DIR);
 //			fileIndexer.start();
 			
