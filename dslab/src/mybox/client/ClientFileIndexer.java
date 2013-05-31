@@ -22,7 +22,7 @@ public class ClientFileIndexer extends FileIndexer {
 	private void uploadAsync(String filename) throws InterruptedException {
 		FileClientSingle fileClient = new FileClientSingle(id, getDirectory(), filename, "localhost", 13267);
 		fileClient.start();
-//		fileClient.join();
+		fileClient.join();
 	}
 	
 	private void handleChanges(String filename, boolean isFile) {
@@ -174,7 +174,7 @@ public class ClientFileIndexer extends FileIndexer {
 					}
 					
 					Log.error("CONFLICT: Not possible to move " + typeString + " " + filename + " to " + newFilename);
-					throw new Exception("Not possible to move " + typeString + " " + filename);
+					throw new Exception("Not possible to move " + typeString + " " + filename + " to " + newFilename);
 					
 					// If file has not been deleted on client side and the sync_version differs only by one, and now further 
 					// changes have been made... delete the file.
