@@ -1,0 +1,28 @@
+#!/bin/sh
+
+function usage {
+        echo "Usage: $0 server|client"
+}
+
+if [ $# -eq 0 ]; then
+	echo "Paramter missing!"
+	usage
+	exit 1
+fi
+
+CLASSPATH="/Users/user/Documents/eclipseWorkspace/dslab/bin:/Users/user/Documents/eclipseWorkspace/dslab/resources:/Users/user/Documents/eclipseWorkspace/dslab/postgresql-9.2-1002.jdbc4.jar:/Users/user/Documents/eclipseWorkspace/piwoTools/bin/"
+
+if [ "$1" = "server" ]; then
+	java -Dfile.encoding=UTF-8 -classpath $CLASSPATH mybox.server.MyBoxServer
+	exit 0
+fi
+
+if [ "$1" = "client" ]; then
+        java -Dfile.encoding=UTF-8 -classpath $CLASSPATH mybox.client.MyBoxClient
+	exit 0
+fi
+
+echo "Paramter wrong!"
+usage
+
+exit 1
