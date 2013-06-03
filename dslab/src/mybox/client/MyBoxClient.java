@@ -16,8 +16,9 @@ public class MyBoxClient {
 	
 	public static void main(String[] args) throws NotBoundException {	
 		
-		Log.setEnvVariableForDebug("MYBOX_CLIENT_DEBUG2");
+		Log.setEnvVariableForDebug("MYBOX_CLIENT_DEBUG");
 		
+		Log.info(Log.getLevelInfo());
 		Log.info("Welcome to myBox! Your MyBox directory is " + DEFAULT_CLIENT_DIR);
 		
 		try {

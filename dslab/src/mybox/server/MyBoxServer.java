@@ -14,6 +14,8 @@ public class MyBoxServer {
 		
 		Log.setEnvVariableForDebug("MYBOX_SERVER_DEBUG2");
 		
+		Log.info(Log.getLevelInfo());
+		
 		try {
 			DatabaseConnection.setup("jdbc:postgresql://localhost/openreg?user=user&password=qwertz");
 		} catch (Exception e) {

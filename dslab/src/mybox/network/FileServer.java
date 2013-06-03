@@ -25,7 +25,7 @@ public class FileServer extends Thread {
 	    		Log.info("FileServer is waiting for new connections...");
 	    		socket = serverSocket.accept();
 	    		Log.info("Accepted connection: " + socket);
-	    		NetworkTools.uploadFileServer(socket, directory);
+	    		NetworkTools.fileServer(socket, directory);
 	    		if(socket != null) {
 					socket.close();
 	    			Log.debug(socket + " closed!");
