@@ -1,14 +1,12 @@
-package mybox.io;
+package mybox.unused;
 
 import java.io.File;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
-
 import piwotools.database.DatabaseTools;
 import piwotools.database.Row;
 import piwotools.io.FileTools;
 import piwotools.log.Log;
-import mybox.server.ServerInterface;
 
 public class RMIFileTools {
 	

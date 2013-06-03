@@ -1,9 +1,6 @@
-package mybox.client;
+package mybox.unused;
 
 import java.rmi.Naming;
-
-import mybox.io.RMIFileTools;
-import mybox.server.ServerInterface;
 import piwotools.log.Log;
 
 public class FileUploader extends Thread {

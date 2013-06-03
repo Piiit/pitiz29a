@@ -1,11 +1,13 @@
 package mybox.network;
 
 import java.util.ArrayList;
+
+import mybox.io.DelayedInfiniteThread;
 import mybox.query.MyBoxQueryTools;
 import piwotools.database.Row;
 import piwotools.log.Log;
 
-public class FileClient extends Thread {
+public class FileClient extends DelayedInfiniteThread {
 	
 	private String directory;
 	private String clientId;
@@ -20,35 +22,41 @@ public class FileClient extends Thread {
 		this.port = port;
 	}
 
-	public void run() {
+	@Override
+	public void beforeRun() throws Exception {
+	}
 
-		while(true) {
+	@Override
+	public void duringRun() throws Exception {
+		try {
+			
+			ArrayList<Row> fileEntries = MyBoxQueryTools.getUploadableFiles(clientId);
+			
+			for(Row fileEntry : fileEntries) {
+				String filename = fileEntry.getValueAsString("filename");
+				
+				MyBoxQueryTools.lockFile(filename, clientId);
+				
+				NetworkTools.uploadFile(directory + filename, hostname, port, filename);
+			
+				MyBoxQueryTools.unlockFile(filename, clientId);
+				MyBoxQueryTools.updateServerEntryAndSyncVersion(fileEntry, MyBoxQueryTools.getServerFileInfo(filename));
+			}
+			
+			Log.debug("FileClient ready, next run in 10 seconds.");
+			Thread.sleep(getDelay());
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
 			try {
-				
-				ArrayList<Row> fileEntries = MyBoxQueryTools.getUploadableFiles(clientId);
-				
-				for(Row fileEntry : fileEntries) {
-					String filename = fileEntry.getValueAsString("filename");
-					
-					MyBoxQueryTools.lockFile(filename, clientId);
-					
-					NetworkTools.uploadFile(directory + filename, hostname, port, filename);
-				
-					MyBoxQueryTools.unlockFile(filename, clientId);
-					MyBoxQueryTools.updateServerEntryAndSyncVersion(fileEntry, MyBoxQueryTools.getServerFileInfo(filename));
-				}
-				
-				Log.debug("FileClient ready, next run in 10 seconds.");
-				Thread.sleep(10000);
+				MyBoxQueryTools.unlockAllFiles(clientId);
 			} catch (Exception e) {
 				e.printStackTrace();
-			} finally {
-				try {
-					MyBoxQueryTools.unlockAllFiles(clientId);
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
 			}
 		}
+	}
+
+	@Override
+	public void afterRun() throws Exception {
 	}
 }

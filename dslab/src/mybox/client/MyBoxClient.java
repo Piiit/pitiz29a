@@ -14,12 +14,23 @@ public class MyBoxClient {
 	public static final String DEFAULT_SERVER = "localhost";
 	public static final int DEFAULT_PORT = 13267;
 	
+	private static String clientDir = DEFAULT_CLIENT_DIR;
+	private static String clientId = null;
+	
 	public static void main(String[] args) throws NotBoundException {	
 		
 		Log.setEnvVariableForDebug("MYBOX_CLIENT_DEBUG");
-		
+
+		if(args.length != 2) {
+			Log.error("Parameter missing! Usage: MyBoxClient clientID myBoxHomeDirectory");
+			System.exit(1);
+		}
+
+		clientId = args[0];
+		clientDir = args[1];
+
 		Log.info(Log.getLevelInfo());
-		Log.info("Welcome to myBox! Your MyBox directory is " + DEFAULT_CLIENT_DIR);
+		Log.info("Welcome to myBox, " + clientId + "! Your MyBox directory is " + clientDir);
 		
 		try {
 			DatabaseConnection.setup("jdbc:postgresql://localhost/openreg?user=user&password=qwertz");
@@ -29,19 +40,19 @@ public class MyBoxClient {
 			System.exit(1);
 		}
 	   	
-		ClientFileIndexer fileIndexer = new ClientFileIndexer("pemoser", DEFAULT_CLIENT_DIR);
+		ClientFileIndexer fileIndexer = new ClientFileIndexer(clientId, clientDir);
 		fileIndexer.start();
 		
-		DeletionDetector deletionDetector = new DeletionDetector("pemoser", DEFAULT_CLIENT_DIR);
+		DeletionDetector deletionDetector = new DeletionDetector(clientId, clientDir);
 		deletionDetector.start();
 		
-		FileClient fileClient = new FileClient("pemoser", DEFAULT_CLIENT_DIR, DEFAULT_SERVER, DEFAULT_PORT);
+		FileClient fileClient = new FileClient(clientId, clientDir, DEFAULT_SERVER, DEFAULT_PORT);
 //		fileClient.start();
 		
-		FileServer fileServer = new FileServer(DEFAULT_CLIENT_DIR, 13268);
+		FileServer fileServer = new FileServer(clientDir, 13268);
 //		fileServer.start();
 		
-		DeletedFileRemover deletedFileRemover = new DeletedFileRemover("pemoser", DEFAULT_CLIENT_DIR);
+		DeletedFileRemover deletedFileRemover = new DeletedFileRemover(clientId, clientDir);
 		deletedFileRemover.start();
 		
 		try {

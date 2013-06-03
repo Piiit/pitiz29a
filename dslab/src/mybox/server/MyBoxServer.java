@@ -4,6 +4,7 @@ import mybox.io.DeletedFileRemover;
 import mybox.io.DeletionDetector;
 import mybox.network.FileClient;
 import mybox.network.FileServer;
+import mybox.unused.ServerImpl;
 
 import piwotools.database.DatabaseConnection;
 import piwotools.log.Log;
@@ -40,7 +41,7 @@ public class MyBoxServer {
 			fileServer.start();
 			
 			FileClient fileClient = new FileClient("MYBOX_SERVER", ServerImpl.SERVER_DIR, "localhost", 13268);
-//			fileClient.start();
+			fileClient.start();
 			
 			fileRemover.join();
 			fileIndexer.join();

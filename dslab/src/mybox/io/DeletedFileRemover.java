@@ -6,17 +6,15 @@ import piwotools.database.DatabaseTools;
 import piwotools.database.Row;
 import piwotools.log.Log;
 
-public class DeletedFileRemover extends Thread {
-	
-	private static final int DEFAULT_WAIT = 30000;
+public class DeletedFileRemover extends DelayedInfiniteThread {
 	
 	private String directory;
 	private String id;
-	private int waitInterval = DEFAULT_WAIT;
-
+	
+	private final static int DELAY = 30000;
 	
 	public DeletedFileRemover(String id, String directory) {
-		super();
+		super(DELAY);
 		this.directory = directory;
 		this.id = id;
 	}
@@ -25,32 +23,40 @@ public class DeletedFileRemover extends Thread {
 		return DatabaseTools.getQueryResult(
 				"SELECT * FROM mybox_client_files " +
 				"WHERE client=? " +
-				"AND deleted=?", 
+				"AND deleted=? AND is_deleted=?", 
 				id,
-				true);
+				true,
+				false);
 	}
 	
-	public void run() {
-		try {
-			while(true) {
-				ArrayList<Row> filesToDelete = getRemovingRequests();
-				for(Row fileEntry : filesToDelete) {
-					String filename = directory + fileEntry.getValueAsString("filename");
-					File file = new File(filename);
-					if(file.exists()) {
-						if(file.delete()) {
-							Log.info("DeletedFileRemover: Removing file " + fileEntry.getValueAsString("filename"));
-						} else {
-							Log.warn("DeletedFileRemover: Can't delete file or directory " + filename);
-						}
-					}
+	@Override
+	public void beforeRun() throws Exception {
+	}
+
+	@Override
+	public void duringRun() throws Exception {
+		ArrayList<Row> filesToDelete = getRemovingRequests();
+		for(Row fileEntry : filesToDelete) {
+			String filename = directory + fileEntry.getValueAsString("filename");
+			File file = new File(filename);
+			if(file.exists()) {
+				if(file.delete()) {
+					Log.info("DeletedFileRemover: Removing file " + fileEntry.getValueAsString("filename"));
+					DatabaseTools.executeUpdate(
+							"UPDATE mybox_client_files SET is_deleted=? WHERE client=? AND filename=?",
+							true,
+							id,
+							fileEntry.getValueAsString("filename")
+							);
+				} else {
+					Log.warn("DeletedFileRemover: Can't delete file or directory " + filename);
 				}
-				sleep(waitInterval);
 			}
-		} catch (Exception e) {
-			e.printStackTrace();
 		}
-		
+	}
+
+	@Override
+	public void afterRun() throws Exception {
 	}
 	
 	

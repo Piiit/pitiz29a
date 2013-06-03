@@ -4,33 +4,12 @@ import piwotools.io.FileTools;
 import piwotools.io.FileWalker;
 import piwotools.log.Log;
 
-public abstract class FileIndexer extends Thread {
-	private static final int FILEINDEXER_DEFAULT_WAIT = 10000;
-	private static final int ERR_BEFORE_RUN = 0x10;
-	private static final int ERR_DURING_RUN = 0x20;
-	private static final int ERR_AFTER_RUN = 0x40;
-	private static int countRuns = 0;
+public abstract class FileIndexer extends DelayedInfiniteThread {
 
-	private int waitInterval = FILEINDEXER_DEFAULT_WAIT;
 	private String directory = "";
 	
 	public abstract void onDirectory(String dirname);
 	public abstract void onFile(String filename);
-	public abstract void beforeRun() throws Exception;
-	public abstract void duringRun() throws Exception;
-	public abstract void afterRun() throws Exception;
-	
-	public int getRun() {
-		return countRuns;
-	}
-	
-	public void setWaitInterval(int wait_ms) {
-		waitInterval = wait_ms;
-	}
-	
-	public int getWaitInterval() {
-		return waitInterval;
-	}
 	
 	public String getDirectory() {
 		return directory;
@@ -40,51 +19,35 @@ public abstract class FileIndexer extends Thread {
 		directory = dir;
 	}
 	
-	private class MyFileWalker implements FileWalker {
-
-		@Override
-		public void isDirectory(String dir) {
-			onDirectory(dir);
-		}
-
-		@Override
-		public void isFile(String file) {
-			onFile(file);
-		}
-		
+	@Override
+	public void beforeRun() throws Exception {
 	}
 	
-	public void run() {
+	@Override
+	public void duringRun() throws Exception {
+		Log.debug("FileIndexer for directory '" + directory + "': run " + getRun() + " started!");
+		
+		FileTools.fileWalker(directory, new FileWalker() {
 
-		try {
-			beforeRun();
-		} catch (Exception e) {
-			Log.error("BeforeRun routine exited with errors! " + e.getMessage());
-			e.printStackTrace();
-			System.exit(ERR_BEFORE_RUN);
-		}
-		
-		try {
-			while(true) {
-				Log.debug("FileIndexer for directory '" + getDirectory() + "': run " + countRuns + " started!");
-				FileTools.fileWalker(directory, new MyFileWalker());
-				duringRun();
-				Log.debug("FileIndexer for directory '" + getDirectory() + "': run " + countRuns + " completed! Next start in " + waitInterval/1000 + " seconds.");
-				sleep(waitInterval);
-				countRuns++;
+			@Override
+			public void isDirectory(String dir) {
+				onDirectory(dir);
 			}
-		} catch (Exception e) {
-			Log.error("DuringRun routine exited with errors! " + e.getMessage());
-			e.printStackTrace();
-			System.exit(ERR_DURING_RUN);
-		}
+
+			@Override
+			public void isFile(String file) {
+				onFile(file);
+			}
+			
+		});
 		
-		try {
-			afterRun();
-		} catch (Exception e) {
-			Log.error("AfterRun routine exited with errors! " + e.getMessage());
-			e.printStackTrace();
-			System.exit(ERR_AFTER_RUN);
-		}
+		Log.debug("FileIndexer for directory '" + directory + "': run " + getRun() + " completed! Next start in " + getDelay()/1000 + " seconds.");
 	}
+	
+	@Override
+	public void afterRun() throws Exception {
+	}
+	
+	
+	
 }
