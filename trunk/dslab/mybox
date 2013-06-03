@@ -10,15 +10,17 @@ if [ $# -eq 0 ]; then
 	exit 1
 fi
 
+echo $0, $1, $2, $3
+
 CLASSPATH="/Users/user/Documents/eclipseWorkspace/dslab/bin:/Users/user/Documents/eclipseWorkspace/dslab/resources:/Users/user/Documents/eclipseWorkspace/dslab/postgresql-9.2-1002.jdbc4.jar:/Users/user/Documents/eclipseWorkspace/piwoTools/bin/"
 
 if [ "$1" = "server" ]; then
-	java -Dfile.encoding=UTF-8 -classpath $CLASSPATH mybox.server.MyBoxServer
+	java -Dfile.encoding=UTF-8 -classpath $CLASSPATH mybox.server.MyBoxServer $2 $3
 	exit 0
 fi
 
 if [ "$1" = "client" ]; then
-        java -Dfile.encoding=UTF-8 -classpath $CLASSPATH mybox.client.MyBoxClient
+        java -Dfile.encoding=UTF-8 -classpath $CLASSPATH mybox.client.MyBoxClient $2 $3
 	exit 0
 fi
 

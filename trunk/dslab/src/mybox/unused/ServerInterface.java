@@ -1,10 +1,7 @@
-package mybox.server;
-
+package mybox.unused;
 
 import java.rmi.*;
 import java.rmi.server.ServerNotActiveException;
-
-import mybox.io.FileChunk;
 
 public interface ServerInterface extends Remote {
 	public void register(String name) throws RemoteException;

@@ -95,8 +95,6 @@ public class ClientFileIndexer extends FileIndexer {
 				//server file info exists, must be different from newly found local file... 
 				if(isFile) {
 					
-					//TODO Download if server file is newer...
-					
 					//...trying to restore...
 					String checksum = FileTools.createSHA1checksum(filename);
 					if(checksum.equalsIgnoreCase(serverFileInfo.getValueAsString("checksum"))) {
@@ -133,9 +131,9 @@ public class ClientFileIndexer extends FileIndexer {
 
 				String checksum = isFile ? FileTools.createSHA1checksum(filename) : null;
 
-				long version = clientFileInfo.getValueAsLong("version");
+				long clientVersion = clientFileInfo.getValueAsLong("version");
 				if((isFile  && !checksum.equalsIgnoreCase(clientFileInfo.getValueAsStringNotNull("checksum"))) || clientFileInfo.getValueAsBoolean("deleted")) {
-					version++;
+					clientVersion++;
 				}
 				
 				Log.info(typeString + " '" + myboxFilename + "' has been changed.");
@@ -143,10 +141,10 @@ public class ClientFileIndexer extends FileIndexer {
 				//File changed locally, but server hasn't any file info...
 				if(serverFileInfo == null) {
 					if(isFile) {
-						MyBoxQueryTools.updateFile(id, myboxFilename, checksum, file.length(), fileTimestamp, version, version);
+						MyBoxQueryTools.updateFile(id, myboxFilename, checksum, file.length(), fileTimestamp, clientVersion, clientVersion);
 						uploadAsync(myboxFilename);
 					} else {
-						MyBoxQueryTools.updateDirectory(id, myboxFilename, fileTimestamp, version, version);
+						MyBoxQueryTools.updateDirectory(id, myboxFilename, fileTimestamp, clientVersion, clientVersion);
 					}
 					clientFileInfo = MyBoxQueryTools.getFileInfo(id, myboxFilename);
 					MyBoxQueryTools.updateServerEntryAndSyncVersion(clientFileInfo, serverFileInfo);
@@ -163,17 +161,33 @@ public class ClientFileIndexer extends FileIndexer {
 					long syncVersion = clientFileInfo.getValueAsLong("sync_version");
 //					if(clientFileInfo.getValueAsBoolean("deleted") && serverVersion == syncVersion) {
 					if(serverVersion == syncVersion || (checksum.equalsIgnoreCase(serverFileInfo.getValueAsString("checksum")) && !clientFileInfo.getValueAsBoolean("deleted"))) {
-//						Log.info("Deleted " + typeString + " restored! " + filename);
+						Log.info("Uploading " + typeString + " " + filename);
 						if(isFile) {
-							MyBoxQueryTools.updateFile(id, myboxFilename, checksum, file.length(), fileTimestamp, version, version);
+							MyBoxQueryTools.updateFile(id, myboxFilename, checksum, file.length(), fileTimestamp, clientVersion, clientVersion);
 							uploadAsync(myboxFilename);
 						} else {
-							MyBoxQueryTools.updateDirectory(id, myboxFilename, fileTimestamp, version, version);
+							MyBoxQueryTools.updateDirectory(id, myboxFilename, fileTimestamp, clientVersion, clientVersion);
 						}
 						clientFileInfo = MyBoxQueryTools.getFileInfo(id, myboxFilename);
 						MyBoxQueryTools.updateServerEntryAndSyncVersion(clientFileInfo, serverFileInfo);
 						return;
 					}
+					
+					// Local files have not been changed since last sync
+					// Server version is newer, download new file...
+					if(serverVersion > syncVersion && syncVersion == clientVersion) {
+						Log.info("Downloading " + typeString + " " + filename);
+						if(isFile) {
+							MyBoxQueryTools.updateFile(id, myboxFilename, checksum, file.length(), fileTimestamp, clientVersion, clientVersion);
+							downloadAsync(myboxFilename);
+						} else {
+							MyBoxQueryTools.updateDirectory(id, myboxFilename, fileTimestamp, clientVersion, clientVersion);
+						}
+						clientFileInfo = MyBoxQueryTools.getFileInfo(id, myboxFilename);
+						MyBoxQueryTools.updateServerEntryAndSyncVersion(clientFileInfo, serverFileInfo);
+						return;
+					}
+					
 					
 					// Move local file, insert local file info with new name... do not insert the old filename, should be done by FileDownloader...
 					String newFilenameExtension = "(OUT OF SYNC " + id + ")";
@@ -202,24 +216,12 @@ public class ClientFileIndexer extends FileIndexer {
 
 	@Override
 	public void onDirectory(String dirname) {
-		handleChanges(dirname, false);
+		handleChanges(dirname, false);		
 	}
 
 	@Override
 	public void onFile(String filename) {
-		handleChanges(filename, true);
-	}
-
-	@Override
-	public void beforeRun() throws Exception {
-	}
-
-	@Override
-	public void duringRun() throws Exception {
-	}
-
-	@Override
-	public void afterRun() throws Exception {
+		handleChanges(filename, true);		
 	}
 
 }

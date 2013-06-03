@@ -1,4 +1,4 @@
-package mybox.server;
+package mybox.unused;
 
 import java.io.FileOutputStream;
 import java.io.File;
@@ -8,7 +8,6 @@ import java.rmi.server.*;
 import java.security.NoSuchAlgorithmException;
 import piwotools.io.FileTools;
 import piwotools.log.Log;
-import mybox.io.FileChunk;
 
 public class ServerImpl extends UnicastRemoteObject implements ServerInterface {
 	private static final long serialVersionUID = 1L;
