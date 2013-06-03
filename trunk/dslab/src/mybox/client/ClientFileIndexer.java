@@ -21,6 +21,14 @@ public class ClientFileIndexer extends FileIndexer {
 	
 	private void uploadAsync(String filename) throws InterruptedException {
 		FileClientSingle fileClient = new FileClientSingle(id, getDirectory(), filename, "localhost", 13267);
+		fileClient.setType(true);
+		fileClient.start();
+		fileClient.join();
+	}
+	
+	private void downloadAsync(String filename) throws InterruptedException {
+		FileClientSingle fileClient = new FileClientSingle(id, getDirectory(), filename, "localhost", 13267);
+		fileClient.setType(false);
 		fileClient.start();
 		fileClient.join();
 	}
@@ -84,8 +92,10 @@ public class ClientFileIndexer extends FileIndexer {
 					return;
 				} 
 
-				//server file info exists, must it is different from newly found local file... 
+				//server file info exists, must be different from newly found local file... 
 				if(isFile) {
+					
+					//TODO Download if server file is newer...
 					
 					//...trying to restore...
 					String checksum = FileTools.createSHA1checksum(filename);
