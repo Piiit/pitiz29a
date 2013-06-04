@@ -36,6 +36,7 @@ public class ClientFileIndexer extends FileIndexer {
 	private void handleChanges(String filename, boolean isFile) {
 		
 		String typeString = isFile ? "file" : "directory";
+		System.out.println(getDirectory());
 		String myboxFilename = filename.substring(getDirectory().length());
 		File file = new File(filename);
 		Row clientFileInfo = null;
@@ -120,6 +121,7 @@ public class ClientFileIndexer extends FileIndexer {
 				} 
 				
 				//server file info exists, it is a directory...
+				Log.info("Directory found: " + myboxFilename);
 				MyBoxQueryTools.insertDirectory(id, myboxFilename, (Timestamp)serverFileInfo.getValue("modified"), serverFileInfo.getValueAsLong("version"), serverFileInfo.getValueAsLong("version"));
 				return;
 			}					
@@ -193,6 +195,7 @@ public class ClientFileIndexer extends FileIndexer {
 					String newFilenameExtension = "(OUT OF SYNC " + id + ")";
 					String newFilename = filename + newFilenameExtension ;
 					if(file.renameTo(new File(newFilename))) {
+						Log.info("File in conflict renamed to " + newFilename);
 						MyBoxQueryTools.insertFile(id, myboxFilename + newFilenameExtension, checksum, file.length(), fileTimestamp, 0, 0);
 						return;
 					}

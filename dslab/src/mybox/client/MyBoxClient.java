@@ -1,12 +1,13 @@
 package mybox.client;
 
+import java.io.File;
+import java.io.IOException;
 import java.rmi.NotBoundException;
 import piwotools.database.DatabaseConnection;
+import piwotools.database.DatabaseTools;
 import piwotools.log.Log;
 import mybox.io.DeletedFileRemover;
 import mybox.io.DeletionDetector;
-import mybox.network.FileClient;
-import mybox.network.FileServer;
 
 public class MyBoxClient {
 	
@@ -17,7 +18,7 @@ public class MyBoxClient {
 	private static String clientDir = DEFAULT_CLIENT_DIR;
 	private static String clientId = null;
 	
-	public static void main(String[] args) throws NotBoundException {	
+	public static void main(String[] args) throws Exception {	
 		
 		Log.setEnvVariableForDebug("MYBOX_CLIENT_DEBUG");
 
@@ -28,6 +29,8 @@ public class MyBoxClient {
 
 		clientId = args[0];
 		clientDir = args[1];
+		
+		clientDir = (new File(clientDir)).getCanonicalPath() + "/";
 
 		Log.info(Log.getLevelInfo());
 		Log.info("Welcome to myBox, " + clientId + "! Your MyBox directory is " + clientDir);
@@ -39,6 +42,13 @@ public class MyBoxClient {
 			e.printStackTrace();
 			System.exit(1);
 		}
+
+		//Unlock all files...
+		DatabaseTools.executeUpdate(
+				"UPDATE mybox_client_files SET locked=? WHERE client=?",
+				false,
+				clientId
+				);
 	   	
 		ClientFileIndexer fileIndexer = new ClientFileIndexer(clientId, clientDir);
 		fileIndexer.start();
@@ -46,11 +56,8 @@ public class MyBoxClient {
 		DeletionDetector deletionDetector = new DeletionDetector(clientId, clientDir);
 		deletionDetector.start();
 		
-		FileClient fileClient = new FileClient(clientId, clientDir, DEFAULT_SERVER, DEFAULT_PORT);
-//		fileClient.start();
-		
-		FileServer fileServer = new FileServer(clientDir, 13268);
-//		fileServer.start();
+		FileDownloader fileDownloader = new FileDownloader(clientId, clientDir, DEFAULT_SERVER, DEFAULT_PORT);
+		fileDownloader.start();
 		
 		DeletedFileRemover deletedFileRemover = new DeletedFileRemover(clientId, clientDir);
 		deletedFileRemover.start();
@@ -58,9 +65,8 @@ public class MyBoxClient {
 		try {
 			fileIndexer.join();
 			Thread.sleep(10000);
+			fileDownloader.join();
 			deletionDetector.join();
-			fileClient.join();
-			fileServer.join();
 			deletedFileRemover.join();
 		} catch (InterruptedException e1) {
 			e1.printStackTrace();
