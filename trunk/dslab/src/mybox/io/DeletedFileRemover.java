@@ -41,7 +41,7 @@ public class DeletedFileRemover extends DelayedInfiniteThread {
 			File file = new File(filename);
 			if(file.exists()) {
 				if(file.delete()) {
-					Log.info("DeletedFileRemover: Removing file " + fileEntry.getValueAsString("filename"));
+					Log.info("DeletedFileRemover: Removing file " + file.getCanonicalPath());
 					DatabaseTools.executeUpdate(
 							"UPDATE mybox_client_files SET is_deleted=? WHERE client=? AND filename=?",
 							true,

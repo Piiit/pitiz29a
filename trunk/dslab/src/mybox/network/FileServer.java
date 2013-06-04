@@ -22,9 +22,9 @@ public class FileServer extends Thread {
 		try {
 			serverSocket = new ServerSocket(port);
 		    while (true) {
-	    		Log.info("FileServer is waiting for new connections...");
+	    		Log.debug("FileServer is waiting for new connections...");
 	    		socket = serverSocket.accept();
-	    		Log.info("Accepted connection: " + socket);
+	    		Log.debug("Accepted connection: " + socket);
 	    		NetworkTools.fileServer(socket, directory);
 	    		if(socket != null) {
 					socket.close();

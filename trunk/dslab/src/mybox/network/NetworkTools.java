@@ -61,21 +61,18 @@ public class NetworkTools {
 		PrintWriter output = null;
 		File file = new File(localFilename);
 
-		if(!file.exists()) {
-			throw new Exception("File " + localFilename + " doesn't exist! Skipping upload...");
-		}
-		
 		Socket socket = new Socket(hostname, port);
 		Log.debug("FileClient: Connecting to " + hostname + ":" + port);
 		
 		output = new PrintWriter(socket.getOutputStream(), true);
 		output.println(createHeader(true, remoteFilename));
+		output.flush();
 
 		Log.info("Downloading file from " + hostname + ":" + port + "/" + remoteFilename + " to " + localFilename);
 		
 		String path = file.getParent();
 		if(path != null) {
-			File folder = new File(defaultPath + path + "/");
+			File folder = new File(path + "/");
 			folder.mkdirs();
 		}
 		
@@ -85,11 +82,8 @@ public class NetworkTools {
 	
 		// receiving file
 		InputStream is = socket.getInputStream();
-		FileOutputStream fos = new FileOutputStream(defaultPath + localFilename);
+		FileOutputStream fos = new FileOutputStream(localFilename);
 		BufferedOutputStream bos = new BufferedOutputStream(fos);
-//		bos.write(buffer, offset, k - offset);
-//		size += k - offset;
-//		size = 0;
 		while((k = is.read(buffer, 0, buffer.length)) > -1) {
 			bos.write(buffer, 0, k);
 			size += k;
@@ -97,7 +91,6 @@ public class NetworkTools {
 
 		fos.close();
 	 	bos.close();
-	 	
 	 	socket.close();
 
 	 	Log.info("File " + localFilename + " with a size of " + size + " bytes downloaded.");
@@ -122,12 +115,12 @@ public class NetworkTools {
 		String filename = stringBuffer.substring(1, stringBuffer.indexOf(HEADER_FILENAME_END));
 		int offset = (filename + HEADER_FILENAME_END).length() + 2;
 		
-		File file = new File(filename);
+		System.out.println("NetworkTools-fileServer: " + stringBuffer + isClientUpload +stringBuffer.substring(0, 1));
 		
 		if(isClientUpload) {
 			
 			Log.info("Receiving file " + filename);
-			
+			File file = new File(filename);
 			String path = file.getParent();
 			if(path != null) {
 				File folder = new File(defaultPath + path + "/");
@@ -147,8 +140,11 @@ public class NetworkTools {
 			fos.close();
 		 	bos.close();
 		 	
+		 	System.out.println("DONE 1");
+		 	
 		} else {
-			
+			File file = new File(defaultPath + "/" + filename);
+			filename = file.getCanonicalPath();
 			Log.info("Sending file " + filename);
 
 			FileInputStream fis = new FileInputStream(file);

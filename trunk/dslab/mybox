@@ -1,7 +1,7 @@
 #!/bin/sh
 
 function usage {
-        echo "Usage: $0 server|client"
+        echo "Usage: $0 server|client|clean"
 }
 
 if [ $# -eq 0 ]; then
@@ -10,7 +10,12 @@ if [ $# -eq 0 ]; then
 	exit 1
 fi
 
-echo $0, $1, $2, $3
+if [ "$1" = "clean" ]; then
+	rm -rf /Users/user/mybox/*
+	rm -rf /Users/user/mybox2/*
+	rm -rf /Users/user/mybox_server/*
+	exit 0
+fi
 
 CLASSPATH="/Users/user/Documents/eclipseWorkspace/dslab/bin:/Users/user/Documents/eclipseWorkspace/dslab/resources:/Users/user/Documents/eclipseWorkspace/dslab/postgresql-9.2-1002.jdbc4.jar:/Users/user/Documents/eclipseWorkspace/piwoTools/bin/"
 

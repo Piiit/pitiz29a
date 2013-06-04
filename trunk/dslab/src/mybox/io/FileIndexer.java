@@ -1,5 +1,7 @@
 package mybox.io;
 
+import java.io.File;
+
 import piwotools.io.FileTools;
 import piwotools.io.FileWalker;
 import piwotools.log.Log;
@@ -16,7 +18,8 @@ public abstract class FileIndexer extends DelayedInfiniteThread {
 	}
 	
 	public void setDirectory(String dir) {
-		directory = dir;
+		File f = new File(dir);
+		directory = f.getAbsolutePath() + "/";
 	}
 	
 	@Override

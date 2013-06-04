@@ -1,6 +1,7 @@
 package mybox.io;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
 
@@ -22,9 +23,9 @@ public class DeletionDetector extends DelayedInfiniteThread {
 		directory = dir;
 	}
 
-	public DeletionDetector(String clientId, String myboxClientHome) {
+	public DeletionDetector(String clientId, String myboxClientHome) throws IOException {
 		super();
-		this.directory = myboxClientHome;
+		this.directory = (new File(myboxClientHome)).getCanonicalPath() + "/";
 		this.id = clientId;
 	}
 
@@ -44,7 +45,7 @@ public class DeletionDetector extends DelayedInfiniteThread {
 			String filename = fileEntry.getValueAsString("filename");
 			File file = new File(directory + filename);
 			if(!file.exists() || file.isHidden()) {
-				Log.info("Found deleted file or directory: " + filename);
+				Log.info("Found deleted file or directory: " + file.getAbsolutePath());
 				
 				DatabaseTools.executeUpdate(
 						"UPDATE mybox_client_files SET deleted=?, modified=?, version=? WHERE filename=? AND client=?", 

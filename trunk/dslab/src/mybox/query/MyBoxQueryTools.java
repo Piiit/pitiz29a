@@ -41,7 +41,7 @@ public class MyBoxQueryTools {
 				true,
 				filename,
 				clientId,
-				"MYBOX_SERVER"
+				SERVERID
 				);
 	}
 	
@@ -51,7 +51,7 @@ public class MyBoxQueryTools {
 				false,
 				filename,
 				clientId,
-				"MYBOX_SERVER"
+				SERVERID
 				);
 	}
 	

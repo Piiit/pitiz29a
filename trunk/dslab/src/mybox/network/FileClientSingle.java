@@ -1,6 +1,7 @@
 package mybox.network;
 
 import mybox.query.MyBoxQueryTools;
+import piwotools.database.DatabaseTools;
 import piwotools.database.Row;
 
 public class FileClientSingle extends Thread {
@@ -38,8 +39,10 @@ public class FileClientSingle extends Thread {
 
 			} else {
 				
+				MyBoxQueryTools.lockFile(filename, clientId);
 				NetworkTools.downloadFile(directory + filename, hostname, port, filename, directory);
-				
+				MyBoxQueryTools.unlockFile(filename, clientId);
+				MyBoxQueryTools.updateServerEntryAndSyncVersion(MyBoxQueryTools.getFileInfo(clientId, filename), MyBoxQueryTools.getServerFileInfo(filename));
 			}
 			
 		} catch (Exception e) {
