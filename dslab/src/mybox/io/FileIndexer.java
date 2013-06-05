@@ -9,6 +9,9 @@ import piwotools.log.Log;
 public abstract class FileIndexer extends DelayedInfiniteThread {
 
 	private String directory = "";
+	private boolean isFile;
+	private String typeString = "[undefined]";
+	private File file;
 	
 	public abstract void onDirectory(String dirname);
 	public abstract void onFile(String filename);
@@ -22,6 +25,18 @@ public abstract class FileIndexer extends DelayedInfiniteThread {
 		directory = f.getAbsolutePath() + "/";
 	}
 	
+	public boolean isFile() {
+		return isFile;
+	}
+	
+	public File getFile() {
+		return file;
+	}
+	
+	public String getTypeString() {
+		return typeString;
+	}
+	
 	@Override
 	public void beforeRun() throws Exception {
 	}
@@ -33,13 +48,19 @@ public abstract class FileIndexer extends DelayedInfiniteThread {
 		FileTools.fileWalker(directory, new FileWalker() {
 
 			@Override
-			public void isDirectory(String dir) {
-				onDirectory(dir);
+			public void isDirectory(String dirname) {
+				isFile = false;
+				typeString = "directory";
+				file = new File(dirname);
+				onDirectory(dirname);
 			}
 
 			@Override
-			public void isFile(String file) {
-				onFile(file);
+			public void isFile(String filename) {
+				isFile = true;
+				typeString = "file";
+				file = new File(filename);
+				onFile(filename);
 			}
 			
 		});

@@ -140,7 +140,7 @@ public class NetworkTools {
 			fos.close();
 		 	bos.close();
 		 	
-		 	System.out.println("DONE 1");
+//		 	System.out.println("DONE 1");
 		 	
 		} else {
 			File file = new File(defaultPath + "/" + filename);

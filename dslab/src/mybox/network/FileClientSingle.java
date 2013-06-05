@@ -1,7 +1,6 @@
 package mybox.network;
 
 import mybox.query.MyBoxQueryTools;
-import piwotools.database.DatabaseTools;
 import piwotools.database.Row;
 
 public class FileClientSingle extends Thread {
@@ -24,6 +23,24 @@ public class FileClientSingle extends Thread {
 	
 	public void setType(boolean isUpload) {
 		this.isUpload = isUpload;
+	}
+	
+	public static void uploadAsync(String filename, String clientId, String directory, String hostname, int port) throws Exception {
+		MyBoxQueryTools.lockFile(filename, clientId);
+		FileClientSingle fileClient = new FileClientSingle(clientId, directory, filename, hostname, port);
+		fileClient.setType(true);
+		fileClient.start();
+		fileClient.join();
+		MyBoxQueryTools.unlockFile(filename, clientId);
+	}
+	
+	public static void downloadAsync(String filename, String clientId, String directory, String hostname, int port) throws Exception {
+		MyBoxQueryTools.lockFile(filename, clientId);
+		FileClientSingle fileClient = new FileClientSingle(clientId, directory, filename, hostname, port);
+		fileClient.setType(false);
+		fileClient.start();
+		fileClient.join();
+		MyBoxQueryTools.unlockFile(filename, clientId);
 	}
 	
 	public void run() {
