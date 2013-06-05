@@ -3,7 +3,6 @@ package mybox.client;
 import java.util.ArrayList;
 import piwotools.database.DatabaseTools;
 import piwotools.database.Row;
-import piwotools.log.Log;
 import mybox.io.DelayedInfiniteThread;
 import mybox.network.FileClientSingle;
 import mybox.query.MyBoxQueryTools;
@@ -57,11 +56,16 @@ public class FileDownloader extends DelayedInfiniteThread {
 	@Override
 	public void duringRun() throws Exception {
 		for(Row fileInfo: getFileToDownload()) {
+			
 			String filename = fileInfo.getValueAsString("filename");
+			MyBoxQueryTools.lockFile(filename, clientId);
+			
 			FileClientSingle fileClient = new FileClientSingle(clientId, directory, filename, server, port);
 			fileClient.setType(false);
 			fileClient.start();
-//			fileClient.join();
+			fileClient.join();
+			
+			MyBoxQueryTools.unlockFile(filename, clientId);
 		}
 	}
 

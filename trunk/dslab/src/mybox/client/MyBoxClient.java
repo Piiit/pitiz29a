@@ -1,8 +1,6 @@
 package mybox.client;
 
 import java.io.File;
-import java.io.IOException;
-import java.rmi.NotBoundException;
 import piwotools.database.DatabaseConnection;
 import piwotools.database.DatabaseTools;
 import piwotools.log.Log;
@@ -50,7 +48,7 @@ public class MyBoxClient {
 				clientId
 				);
 	   	
-		ClientFileIndexer fileIndexer = new ClientFileIndexer(clientId, clientDir);
+		ClientFileIndexer fileIndexer = new ClientFileIndexer(clientId, clientDir, DEFAULT_SERVER, DEFAULT_PORT);
 		fileIndexer.start();
 		
 		DeletionDetector deletionDetector = new DeletionDetector(clientId, clientDir);
