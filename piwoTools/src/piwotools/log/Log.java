@@ -50,4 +50,9 @@ public class Log {
 		DateFormat f = DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.MEDIUM);
 		return f.format(c.getTime());
 	}
+
+	public static String getLevelInfo() {
+		String debug = System.getenv(envVariable);
+		return "Log level set to " + (debug == null ? "INFO" : "DEBUG") + "; environment variable = " + envVariable;
+	}
 }
