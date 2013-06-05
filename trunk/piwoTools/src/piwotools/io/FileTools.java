@@ -63,4 +63,8 @@ public class FileTools {
 		fileWalkerRecursive(f, filewalker);
 	}
 	
+	public static java.sql.Timestamp getFileModifiedAsSqlTimestamp(File file) {
+		return new java.sql.Timestamp(file.lastModified());
+	}
+	
 }
