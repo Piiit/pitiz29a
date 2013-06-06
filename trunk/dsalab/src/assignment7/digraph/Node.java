@@ -18,17 +18,19 @@ public class Node {
 	
 	@Override
 	public String toString() {
-		return "Node[id=" + id + ", color=" + color + ", pred=" + pred
-				+ ", distance=" + distance 
-				+ "]";
+		return "Node[id=" + id + ", color=" + color + ", pred=" + pred + ", distance=" + distance + "]";
 	}
 	
 	public void addAdjacent(Node n) {
 		adj.add(n);
 	}
 
-	public String getAdjacentsString() {
+	public String getAdjacentListAsString() {
 		return adj.toString();
+	}
+	
+	public NodeList getAdjacentList() {
+		return adj;
 	}
 	
 }
