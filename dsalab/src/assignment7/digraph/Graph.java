@@ -71,9 +71,9 @@ public class Graph {
 		HTListNode<Node> n = nodes.getRoot();
 		String out = "";
 		while(n != null) {
-			String adjacents = n.getData().getAdjacentsString();
+			String adjacents = n.getData().getAdjacentListAsString();
 			if(adjacents.length() != 0) {
-				out += n.getData().id + ":" + n.getData().getAdjacentsString() + "\n";
+				out += n.getData().id + ":" + n.getData().getAdjacentListAsString() + "\n";
 			}
 			n = n.getNext();
 		}
