@@ -1,47 +1,38 @@
 package assignment7.climbing;
 
+import assignment7.digraph.HTList;
+import assignment7.digraph.HTListNode;
+
 public class ClimbingNodeList {
-	ClimbingNode root;
 	
-	public ClimbingNodeList() {
-		root = null;
-	}
-	
-	public boolean isEmpty() {
-		return (root == null);
-	}
-	
-	public void insertFirst(ClimbingNode n) {
-		if(n == null) {
-			return;
-		}
-		System.out.println("Inserting: " + n);
-		n.next = root;
-		root = n;
-	}
-	
-	public void print() {
-		ClimbingNode n = root;
-		int i = 0;
-		while(n != null) {
-			System.out.println(i + ":" + n);
-			n = n.next;
-			i++;
-		}
-		System.out.println("Root=" + root);
-	}
+	HTList<ClimbingNode> nodes = new HTList<ClimbingNode>();
 	
 	public ClimbingNode get(int height, int width) {
-		ClimbingNode n = root;
+		HTListNode<ClimbingNode> n = nodes.getHead();
 		while(n != null) {
-			if(n.height == height && n.width == width) {
-//				System.out.println("Found: " + n + "; root=" + root);
-				return n;
+			ClimbingNode curData = n.getData();
+			if(curData.height == height && curData.width == width) {
+				return curData;
 			}
-			n = n.next;
+			n = n.getNext();
 		}
 		return null;
 	}
-
 	
+	public void add(ClimbingNode n) {
+		if(n == null) {
+			return;
+		}
+		nodes.insertLast(n);
+	}
+	
+	public boolean isEmpty() {
+		return nodes.isEmpty();
+	}
+
+	@Override
+	public String toString() {
+		return nodes.toString();
+	}
+		
 }

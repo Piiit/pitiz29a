@@ -7,15 +7,16 @@ public class Main {
 		Wall wall = new Wall();
 		
 		Climbing cr = new Climbing(wall);
-		ClimbingNode root = cr.getBestRoute();
+//		ClimbingNode root = cr.getBestRoute();
 		
+		ClimbingNode root = cr.searchBFS();
 		root.printPath();
 		
-		root = cr.buildGraph();
-		root.adj.get(1,1).adj.print();
-		root.printAdjacents(5, 5);
-		root = root.adj.get(1, 1);
-		root.printAdjacents(5, 5);
+//		root = cr.buildGraph();
+//		System.out.println(root.adj.get(1,1).adj.toString());
+//		root.printAdjacents(5, 5);
+//		root = root.adj.get(1, 1);
+//		root.printAdjacents(5, 5);
 	}
 
 }

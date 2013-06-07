@@ -1,5 +1,8 @@
 package assignment7.climbing;
 
+import assignment7.digraph.HTList;
+import assignment7.digraph.HTListNode;
+
 public class Climbing {
 
 	private Wall wall;
@@ -74,65 +77,69 @@ public class Climbing {
 		
 		// Add all nodes at level 1 to the root...
 		for(int w = 1; w <= wall.getMaxWidth(); w++) {
-			root.adj.insertFirst(wall.getNode(1, w));
+			root.adj.add(wall.getNode(1, w));
 		}
 		
 		// At higher levels, add only the three upper nodes...
 		for(int h = 1; h <= wall.getMaxHeight(); h++) {
 			for(int w = 1; w <= wall.getMaxWidth(); w++) {
-				System.out.println("Current node: " + wall.getNode(h, w));
-				wall.getNode(h, w).adj.insertFirst(wall.getNode(h+1, w-1));
-				wall.getNode(h, w).adj.insertFirst(wall.getNode(h+1, w));
-				wall.getNode(h, w).adj.insertFirst(wall.getNode(h+1, w+1));
-				
-				wall.getNode(h, w).printAdjacents(5, 5);
+				wall.getNode(h, w).adj.add(wall.getNode(h+1, w-1));
+				wall.getNode(h, w).adj.add(wall.getNode(h+1, w));
+				wall.getNode(h, w).adj.add(wall.getNode(h+1, w+1));
 			}
 		}
 		
 		return root;
 	}
 
-	
-	
-	public static void main(String args[]) {
-		
-		int[][] test = {
-				{2,8,9,5,8},
-				{4,4,6,2,3},
-				{5,7,5,6,1},
-				{3,2,5,4,8}
-				};
-		
-		Wall wall = new Wall(test);
-		
-		Climbing cr = new Climbing(wall);
+	public ClimbingNode searchBFS() {
+		ClimbingNode root = buildGraph();
+		ClimbingNode top = BSF(root);
 
-		System.out.println(cr.searchRec(1, 1));
-//		wall.printPath(wall.getNode(1, 1));
-		
-
-		int min = cr.searchRec(1, 1);
-		int mini = 1;
-		ClimbingNode[] paths = new ClimbingNode[wall.getMaxWidth()];
-		paths[0] = wall.copyPath(wall.getNode(1, 1));
-		for(int i = 2; i <= wall.getMaxWidth(); i++) {
-			int cost = cr.searchRec(1, i);
-			paths[i-1] = wall.copyPath(wall.getNode(1, i));
-			mini = cost < min ? i : mini;
-			min = cost < min ? cost : min;
+		//Remove helper node from base nodes...
+		for(int w = 1; w <= wall.getMaxWidth(); w++) {
+			wall.getNode(1, w).ancestor = null;
 		}
 		
-		System.out.println(mini);
-		System.out.println(paths[mini]);
-
-		wall.getNode(1,mini).printPath();
-		
-		ClimbingNode root = cr.buildGraph();
-		System.out.println(root);
-		root.printPath();
-
-//		wall.printPath(wall.getNode(1, 3));
+		return top;
 	}
 	
+	private ClimbingNode BSF(ClimbingNode s) {
+		s.color = ClimbingNode.GRAY;
+		s.distance = 0;
+		
+		HTList<ClimbingNode> queue = new HTList<ClimbingNode>();
+		queue.enqueue(s);
+		
+		while(!queue.isEmpty()) {
+			HTListNode<ClimbingNode> u = queue.getHead();
+			
+			HTListNode<ClimbingNode> v = u.getData().adj.nodes.getHead();
+			while(v != null) {
+				if(v.getData().color == ClimbingNode.WHITE || v.getData().distance > u.getData().distance + v.getData().value) {
+					v.getData().color = ClimbingNode.GRAY;
+					v.getData().distance = u.getData().distance + v.getData().value;
+//					System.out.println(v + " distance = " + v.getData().distance);
+					v.getData().ancestor = u.getData();
+					queue.enqueue(v.getData());
+				}
+				v = v.getNext();
+			}
+			
+			queue.dequeue();
+			u.getData().color = ClimbingNode.BLACK;
+		}
+		
+		int min = wall.getNode(wall.getMaxHeight(), 1).distance;
+		int mini = 1;
+		for(int i = 2; i <= wall.getMaxWidth(); i++) {
+			ClimbingNode n = wall.getNode(wall.getMaxHeight(), i);
+			if(min > n.distance) {
+				min = n.distance;
+				mini = i;
+			}
+		}
+		return wall.getNode(wall.getMaxHeight(), mini);
+	}
 	
 }
