@@ -2,25 +2,26 @@ package assignment7.climbing;
 
 public class ClimbingNode {
 	
-	static final int INF = 1000000;
+	public final static char BLACK = 'b';
+	public final static char WHITE = 'w';
+	public final static char GRAY = 'g';
+	public final static int INF = 1000000;
 	
-	@Override
-	public String toString() {
-		return height + ":" + width + " V=" + value + (ancestor == null ? "" : " A=" + ancestor.height + ":" + ancestor.width);
-	}
-
 	int height;
 	int width;
 	int value;
+	int distance;
+	char color;
 	ClimbingNode ancestor;
 	ClimbingNodeList adj = new ClimbingNodeList();
-	ClimbingNode next;
 	
 	public ClimbingNode(int height, int width, int value) {
 		this.height = height;
 		this.width = width;
 		this.value = value;
 		this.ancestor = null;
+		color = WHITE;
+		distance = 0;
 	}
 	
 	public ClimbingNode copy() {
@@ -39,17 +40,12 @@ public class ClimbingNode {
 	}
 	
 	public void printAdjacents(int maxHeight, int maxWidth) {
-		for(int h = 1; h <= maxHeight; h++) {
-			for(int w = 1; w <= maxWidth; w++) {
-				ClimbingNode node = adj.get(h, w);
-				if(node != null) {
-					System.out.print(node.height + ":" + node.width + " ");
-				} else {
-					System.out.print("    ");
-				}
-			}
-			System.out.println();
-		}
+		System.out.println(adj.toString());
+	}
+	
+	@Override
+	public String toString() {
+		return height + ":" + width;
 	}
 
 }

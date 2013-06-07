@@ -2,8 +2,8 @@ package assignment7.digraph;
 
 public class HTList<T> {
 	
-	HTListNode<T> head;
-	HTListNode<T> tail;
+	private HTListNode<T> head;
+	private HTListNode<T> tail;
 	
 	public HTList() {
 		head = null;
@@ -27,8 +27,7 @@ public class HTList<T> {
 		if(head == null) {
 			return;
 		}
-		HTListNode<T> n = head;
-		while(n != null) {
+		while(head != null) {
 			deleteFirst();
 		}
 	}
@@ -54,15 +53,18 @@ public class HTList<T> {
 		tail = n;
 	}
 	
-	public void print() {
-		HTListNode<T> n = head;
-		int i = 0;
-		while(n != null) {
-			System.out.println(i + ":" + n);
-			n = n.getNext();
-			i++;
+	@Override
+	public String toString() {
+		if(head == null) {
+			return "";
 		}
-		System.out.println("Head=" + head + "; tail=" + tail);
+		HTListNode<T> n = head;
+		String out = "";
+		while(n != null) {
+			out += n + ",";
+			n = n.getNext();
+		}
+		return out.substring(0,out.length() - 1);
 	}
 	
 	public void delete(HTListNode<T> node) {
@@ -78,7 +80,7 @@ public class HTList<T> {
 			return;
 		}
 		
-		System.out.println("Found: " + n + "; head=" + head + "; tail=" + tail);
+//		System.out.println("Found: " + n + "; head=" + head + "; tail=" + tail);
 		if(pre != null) {
 			pre.setNext(n.getNext());
 		}			
@@ -87,5 +89,33 @@ public class HTList<T> {
 		}
 		n = null;
 	}
+	
+	public HTListNode<T> getHead() {
+		return head;
+	}
+
+	public HTListNode<T> getTail() {
+		return tail;
+	}
+	
+	public void push(HTListNode<T> node) {
+		insertFirst(node.getData());
+	}
+	
+	public HTListNode<T> pop() {
+		HTListNode<T> tmp = head;
+		deleteFirst();
+		return tmp;
+	}
+
+	public void enqueue(T node) {
+		insertLast(node);
+	}
+	
+	public HTListNode<T> dequeue() {
+		return pop();
+	}
+
+
 	
 }

@@ -11,7 +11,17 @@ public class Main {
 			e.printStackTrace();
 		}
 		
+		g.setDescriptions("shirt", "shorts", "socks", "tie", "trousers", "shoes", "jacket", "belt", "watch");
 		
+		Graph g2 = g.itDSF();
+		g2.printTopologicalSort();
+
+		Graph g3 = g.recDSF();
+		g3.printTopologicalSort();
+		
+		Graph g4 = g.BSF();
+		System.out.println(g4);
+
 	}
 
 }
