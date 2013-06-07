@@ -49,12 +49,13 @@ public class Climbing {
 			} else {
 				curNode.ancestor = wall.getNode(height+1, width+1);
 			}
+//			System.out.println("Min at " + curNode.ancestor + " = " + min);
 		}
 		
 		return min;
 	}
 	
-	public ClimbingNode getBestRoute() {
+	public ClimbingNode getBestRouteRec() {
 		int min = searchRec(1, 1);
 		int mini = 1;
 		ClimbingNode[] paths = new ClimbingNode[wall.getMaxWidth()];
@@ -66,7 +67,7 @@ public class Climbing {
 			min = cost < min ? cost : min;
 		}
 		
-		return paths[mini];
+		return paths[mini-1];
 	}
 	
 	/* DYNAMIC PROGRAMMING SOLUTION */
@@ -92,7 +93,7 @@ public class Climbing {
 		return root;
 	}
 
-	public ClimbingNode searchBFS() {
+	public ClimbingNode getBestRouteDP() {
 		ClimbingNode root = buildGraph();
 		ClimbingNode top = BSF(root);
 
