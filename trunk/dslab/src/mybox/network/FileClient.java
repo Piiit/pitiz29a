@@ -1,11 +1,11 @@
 package mybox.network;
 
 import java.util.ArrayList;
-
-import mybox.io.DelayedInfiniteThread;
 import mybox.query.MyBoxQueryTools;
 import piwotools.database.Row;
 import piwotools.log.Log;
+import piwotools.network.NetworkTools;
+import piwotools.thread.DelayedInfiniteThread;
 
 public class FileClient extends DelayedInfiniteThread {
 	

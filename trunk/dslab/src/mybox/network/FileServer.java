@@ -3,6 +3,7 @@ package mybox.network;
 import java.net.*;
 import java.io.*;
 import piwotools.log.Log;
+import piwotools.network.NetworkTools;
 
 public class FileServer extends Thread {
 	
