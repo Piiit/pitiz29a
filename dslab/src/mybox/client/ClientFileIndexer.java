@@ -83,7 +83,7 @@ public class ClientFileIndexer extends FileIndexer {
 					clientVersion++;
 				}
 				
-				Log.info(getTypeString() + " '" + myboxFilename + "' has been changed.");
+//				Log.info(getTypeString() + " '" + myboxFilename + "' has been changed.");
 				
 				//File changed locally, but server hasn't any file info...
 				if(serverFileInfo == null) {
@@ -126,7 +126,7 @@ public class ClientFileIndexer extends FileIndexer {
 
 	
 	private void onFileUpdateClient() throws Exception {
-		Log.info("Downloading " + getTypeString() + " " + filename);
+		Log.info("onFileUpdateClient: Downloading " + getTypeString() + " " + filename);
 		
 		String checksum = isFile() ? FileTools.createSHA1checksum(filename) : null;
 		long clientVersion = clientFileInfo.getValueAsLong("version");
@@ -148,6 +148,7 @@ public class ClientFileIndexer extends FileIndexer {
 	}
 
 	private void onFileUpdateServer() throws Exception {
+		Log.info("onFileUpdateServer");
 		
 		String checksum = isFile() ? FileTools.createSHA1checksum(filename) : null;
 		long clientVersion = clientFileInfo.getValueAsLong("version");
@@ -156,12 +157,12 @@ public class ClientFileIndexer extends FileIndexer {
 		}
 
 		java.sql.Timestamp fileTimestamp = new java.sql.Timestamp(getFile().lastModified());
-
-
-		Log.info("Uploading " + getTypeString() + " " + filename);
+		
 		if(isFile()) {
 			MyBoxQueryTools.updateFile(clientId, myboxFilename, checksum, getFile().length(), fileTimestamp, clientVersion, clientVersion);
-			FileClientSingle.uploadAsync(myboxFilename, clientId, getDirectory(), server, port);
+			if(!checksum.equalsIgnoreCase(clientFileInfo.getValueAsStringNotNull("checksum"))) {
+				FileClientSingle.uploadAsync(myboxFilename, clientId, getDirectory(), server, port);
+			}
 		} else {
 			MyBoxQueryTools.updateDirectory(clientId, myboxFilename, fileTimestamp, clientVersion, clientVersion);
 		}

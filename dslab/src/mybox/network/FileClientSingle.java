@@ -1,7 +1,10 @@
 package mybox.network;
 
+import java.net.ConnectException;
+
 import mybox.query.MyBoxQueryTools;
 import piwotools.database.Row;
+import piwotools.log.Log;
 
 public class FileClientSingle extends Thread {
 	
@@ -26,40 +29,51 @@ public class FileClientSingle extends Thread {
 	}
 	
 	public static void uploadAsync(String filename, String clientId, String directory, String hostname, int port) throws Exception {
-		MyBoxQueryTools.lockFile(filename, clientId);
 		FileClientSingle fileClient = new FileClientSingle(clientId, directory, filename, hostname, port);
 		fileClient.setType(true);
 		fileClient.start();
 		fileClient.join();
-		MyBoxQueryTools.unlockFile(filename, clientId);
 	}
 	
 	public static void downloadAsync(String filename, String clientId, String directory, String hostname, int port) throws Exception {
-		MyBoxQueryTools.lockFile(filename, clientId);
 		FileClientSingle fileClient = new FileClientSingle(clientId, directory, filename, hostname, port);
 		fileClient.setType(false);
 		fileClient.start();
 		fileClient.join();
-		MyBoxQueryTools.unlockFile(filename, clientId);
 	}
 	
 	public void run() {
+		boolean success = false;
 		try {
 
 			if (isUpload) {
 				
 				Row fileEntry = MyBoxQueryTools.getFileInfo(clientId, filename);
 				MyBoxQueryTools.lockFile(filename, clientId);
-				NetworkTools.uploadFile(directory + filename, hostname, port, filename);
+				try {
+					NetworkTools.uploadFile(directory + filename, hostname, port, filename);
+					success = true;
+				} catch (ConnectException e) {
+					Log.info("Server not reachable... try later!");
+				}
 				MyBoxQueryTools.unlockFile(filename, clientId);
-				MyBoxQueryTools.updateServerEntryAndSyncVersion(fileEntry, MyBoxQueryTools.getServerFileInfo(filename));
+				if(success) {
+					MyBoxQueryTools.updateServerEntryAndSyncVersion(fileEntry, MyBoxQueryTools.getServerFileInfo(filename));
+				}
 
 			} else {
 				
 				MyBoxQueryTools.lockFile(filename, clientId);
-				NetworkTools.downloadFile(directory + filename, hostname, port, filename, directory);
+				try {
+					NetworkTools.downloadFile(directory + filename, hostname, port, filename, directory);
+					success = true;
+				} catch (ConnectException e) {
+					Log.info("Server not reachable... try later!");
+				}
 				MyBoxQueryTools.unlockFile(filename, clientId);
-				MyBoxQueryTools.updateServerEntryAndSyncVersion(MyBoxQueryTools.getFileInfo(clientId, filename), MyBoxQueryTools.getServerFileInfo(filename));
+				if(success) {
+					MyBoxQueryTools.updateServerEntryAndSyncVersion(MyBoxQueryTools.getFileInfo(clientId, filename), MyBoxQueryTools.getServerFileInfo(filename));
+				}
 			}
 			
 		} catch (Exception e) {
