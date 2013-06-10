@@ -5,7 +5,6 @@ import mybox.io.DeletionDetector;
 import mybox.network.FileClient;
 import mybox.network.FileServer;
 import mybox.unused.ServerImpl;
-
 import piwotools.database.DatabaseConnection;
 import piwotools.log.Log;
 

@@ -9,6 +9,7 @@ import mybox.query.MyBoxQueryTools;
 import piwotools.database.DatabaseTools;
 import piwotools.database.Row;
 import piwotools.log.Log;
+import piwotools.thread.DelayedInfiniteThread;
 
 public class DeletionDetector extends DelayedInfiniteThread {
 	

@@ -5,6 +5,7 @@ import java.net.ConnectException;
 import mybox.query.MyBoxQueryTools;
 import piwotools.database.Row;
 import piwotools.log.Log;
+import piwotools.network.NetworkTools;
 
 public class FileClientSingle extends Thread {
 	

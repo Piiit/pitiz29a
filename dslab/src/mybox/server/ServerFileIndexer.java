@@ -5,7 +5,7 @@ import piwotools.database.DatabaseTools;
 import piwotools.database.Row;
 import piwotools.io.FileTools;
 import piwotools.log.Log;
-import mybox.io.FileIndexer;
+import piwotools.thread.FileIndexer;
 
 public class ServerFileIndexer extends FileIndexer {
 	

@@ -3,7 +3,7 @@ package mybox.client;
 import java.util.ArrayList;
 import piwotools.database.DatabaseTools;
 import piwotools.database.Row;
-import mybox.io.DelayedInfiniteThread;
+import piwotools.thread.DelayedInfiniteThread;
 import mybox.network.FileClientSingle;
 import mybox.query.MyBoxQueryTools;
 

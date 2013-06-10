@@ -6,7 +6,7 @@ import java.sql.Timestamp;
 import piwotools.database.Row;
 import piwotools.io.FileTools;
 import piwotools.log.Log;
-import mybox.io.FileIndexer;
+import piwotools.thread.FileIndexer;
 import mybox.network.FileClientSingle;
 import mybox.query.MyBoxQueryTools;
 
