@@ -4,6 +4,7 @@ import java.sql.Timestamp;
 import java.util.ArrayList;
 import piwotools.database.DatabaseTools;
 import piwotools.database.Row;
+import piwotools.log.Log;
 
 public class MyBoxQueryTools {
 	
@@ -36,6 +37,7 @@ public class MyBoxQueryTools {
 	}
 	
 	public static void lockFile(String filename, String clientId) throws Exception {
+		Log.info("Locking: " + filename + " on " + clientId);
 		DatabaseTools.executeUpdate(
 				"UPDATE mybox_client_files SET locked=? WHERE filename=? AND (client=? OR client=?)",
 				true,
@@ -46,6 +48,7 @@ public class MyBoxQueryTools {
 	}
 	
 	public static void unlockFile(String filename, String clientId) throws Exception {
+		Log.info("Unlocking: " + filename + " on " + clientId);
 		DatabaseTools.executeUpdate(
 				"UPDATE mybox_client_files SET locked=? WHERE filename=? AND (client=? OR client=?)",
 				false,
@@ -149,17 +152,31 @@ public class MyBoxQueryTools {
 	
 	public static void updateFile(String client, String filename, String checksum, long size, Timestamp modified, long version, long syncVersion) throws Exception {
 		DatabaseTools.executeUpdate(
-				"UPDATE mybox_client_files SET checksum=?, size=?, modified=?, version=?, deleted=? " +
+				"UPDATE mybox_client_files SET checksum=?, size=?, modified=?, version=?, deleted=?, sync_version=? " +
 				"WHERE client=? AND filename=?",
 				checksum,
 				size,
 				modified,
 				version,
 				false,
+				syncVersion,
 				client, 
 				filename
 				);
 	}
+	
+	public static void updateFile(Row fileInfo) throws Exception {
+		updateFile(
+				fileInfo.getValueAsString("client"),
+				fileInfo.getValueAsString("filename"),
+				fileInfo.getValueAsString("checksum"),
+				fileInfo.getValueAsLong("size"),
+				fileInfo.getValueAsTimestamp("modified"),
+				fileInfo.getValueAsLong("version"),
+				fileInfo.getValueAsLong("sync_version")
+				);
+	}
+
 	
 	public static void updateDirectory(String client, String filename, Timestamp modified, long version, long syncVersion) throws Exception {
 		updateFile(client, filename, null, 0, modified, version, syncVersion);

@@ -58,14 +58,27 @@ public class FileDownloader extends DelayedInfiniteThread {
 		for(Row fileInfo: getFileToDownload()) {
 			
 			String filename = fileInfo.getValueAsString("filename");
-			MyBoxQueryTools.lockFile(filename, clientId);
+			Row clientFileInfo = MyBoxQueryTools.getFileInfo(clientId, filename);
+			if(clientFileInfo == null) {
+				MyBoxQueryTools.insertFile(clientId, filename, 
+						fileInfo.getValueAsString("checksum"), 
+						fileInfo.getValueAsLong("size"),
+						fileInfo.getValueAsTimestamp("modified"),
+						fileInfo.getValueAsLong("version"),
+						fileInfo.getValueAsLong("sync_version")
+						);
+			} else {
+				clientFileInfo.setValue("client", clientId);
+				MyBoxQueryTools.updateFile(clientFileInfo);
+			}
 			
-			FileClientSingle fileClient = new FileClientSingle(clientId, directory, filename, server, port);
-			fileClient.setType(false);
-			fileClient.start();
-			fileClient.join();
+//			FileClientSingle fileClient = new FileClientSingle(clientId, directory, filename, server, port);
+//			fileClient.setType(false);
+//			fileClient.start();
+//			fileClient.join();
 			
-			MyBoxQueryTools.unlockFile(filename, clientId);
+			FileClientSingle.downloadAsync(filename, clientId, directory, server, port);
+			
 		}
 	}
 

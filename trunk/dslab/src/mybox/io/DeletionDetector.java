@@ -48,10 +48,11 @@ public class DeletionDetector extends DelayedInfiniteThread {
 				Log.info("Found deleted file or directory: " + file.getAbsolutePath());
 				
 				DatabaseTools.executeUpdate(
-						"UPDATE mybox_client_files SET deleted=?, modified=?, version=? WHERE filename=? AND client=?", 
+						"UPDATE mybox_client_files SET deleted=?, modified=?, version=?, is_deleted=? WHERE filename=? AND client=?", 
 						true,
 						new java.sql.Timestamp(Calendar.getInstance().getTime().getTime()),
 						fileEntry.getValueAsLong("version") + 1,
+						true,
 						filename,
 						id
 						);

@@ -53,7 +53,7 @@ public class NetworkTools {
 		
 		fis.close();
 		bis.close();
-		Log.debug("Uploading file " + localFilename + " completed! " + size + " bytes send.");
+		Log.info("Uploading file " + localFilename + " completed! " + size + " bytes send.");
 		socket.close();
 	}
 	
@@ -65,7 +65,7 @@ public class NetworkTools {
 		Log.debug("FileClient: Connecting to " + hostname + ":" + port);
 		
 		output = new PrintWriter(socket.getOutputStream(), true);
-		output.println(createHeader(true, remoteFilename));
+		output.println(createHeader(false, remoteFilename));
 		output.flush();
 
 		Log.info("Downloading file from " + hostname + ":" + port + "/" + remoteFilename + " to " + localFilename);
@@ -89,6 +89,7 @@ public class NetworkTools {
 			size += k;
 		}
 
+		bos.flush();
 		fos.close();
 	 	bos.close();
 	 	socket.close();
@@ -115,7 +116,7 @@ public class NetworkTools {
 		String filename = stringBuffer.substring(1, stringBuffer.indexOf(HEADER_FILENAME_END));
 		int offset = (filename + HEADER_FILENAME_END).length() + 2;
 		
-		System.out.println("NetworkTools-fileServer: " + stringBuffer + isClientUpload +stringBuffer.substring(0, 1));
+//		System.out.println("NetworkTools-fileServer: " + stringBuffer + isClientUpload +stringBuffer.substring(0, 1));
 		
 		if(isClientUpload) {
 			
@@ -131,12 +132,14 @@ public class NetworkTools {
 			FileOutputStream fos = new FileOutputStream(defaultPath + filename);
 			BufferedOutputStream bos = new BufferedOutputStream(fos);
 			bos.write(buffer, offset, k - offset);
+//			System.out.println("Writing" + buffer);
 			size += k - offset;
 			while((k = is.read(buffer, 0, buffer.length)) > -1) {
 				bos.write(buffer, 0, k);
 				size += k;
 			}
 	
+			bos.flush();
 			fos.close();
 		 	bos.close();
 		 	
