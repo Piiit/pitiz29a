@@ -1,6 +1,6 @@
 package piwotools.io;
 
 public interface FileWalker {
-	public void isDirectory(final String dir);
-	public void isFile(final String file);
+	public void onDirectory(final String dir);
+	public void onFile(final String file);
 }

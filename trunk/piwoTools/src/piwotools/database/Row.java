@@ -1,5 +1,6 @@
 package piwotools.database;
 
+import java.sql.Timestamp;
 import java.util.Date;
 import java.util.HashMap;
 
@@ -57,6 +58,13 @@ public class Row {
 			return null;
 		}
 		return (Date)data.get(key);
+	}
+	
+	public Timestamp getValueAsTimestamp(String key) {
+		if(data.get(key) == null) {
+			return null;
+		}
+		return (Timestamp)data.get(key);
 	}
 	
 	public SimpleDate getValueAsSimpleDate(String key) {
