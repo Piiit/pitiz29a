@@ -40,7 +40,7 @@ public class MyBoxServer {
 			fileServer.start();
 			
 			FileClient fileClient = new FileClient("MYBOX_SERVER", ServerImpl.SERVER_DIR, "localhost", 13268);
-			fileClient.start();
+//			fileClient.start();
 			
 			fileRemover.join();
 			fileIndexer.join();

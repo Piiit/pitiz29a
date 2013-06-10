@@ -114,32 +114,52 @@ public class MyBoxQueryTools {
 				);
 	}
 	
+	public static void insertFileOrDirectoryAndLock(String client, String filename, String checksum, long size, Timestamp modified, long version, long syncVersion) throws Exception {
+		//...is a directory...
+		if(checksum == null || checksum.equals("")) {
+			insertDirectory(client, filename, modified, version, syncVersion, true);
+		} else {
+			insertFile(client, filename, checksum, size, modified, version, syncVersion, true);
+		}
+	}
+	
+
 	public static void insertFile(String client, String filename, String checksum, long size, Timestamp modified, long version, long syncVersion) throws Exception {
+		insertFile(client, filename, checksum, size, modified, version, syncVersion, false);
+	}
+	
+	public static void insertFile(String client, String filename, String checksum, long size, Timestamp modified, long version, long syncVersion, boolean locked) throws Exception {
 		DatabaseTools.executeUpdate(
-				"INSERT INTO mybox_client_files (client, filename, checksum, size, modified, version, sync_version) VALUES (?,?,?,?,?,?,?)",
+				"INSERT INTO mybox_client_files (client, filename, checksum, size, modified, version, sync_version, locked) VALUES (?,?,?,?,?,?,?,?)",
 				client,
 				filename,
 				checksum,
 				size,
 				modified,
 				version,
-				syncVersion
+				syncVersion,
+				locked
 				);
 	}
-	
+
 	public static void insertDirectory(String client, String filename, Timestamp modified, long version, long syncVersion) throws Exception {
+		insertDirectory(client, filename, modified, version, syncVersion, false);
+	}
+	
+	public static void insertDirectory(String client, String filename, Timestamp modified, long version, long syncVersion, boolean locked) throws Exception {
 		DatabaseTools.executeUpdate(
-				"INSERT INTO mybox_client_files (client, filename, modified, version, sync_version) VALUES (?,?,?,?,?)",
+				"INSERT INTO mybox_client_files (client, filename, modified, version, sync_version, locked) VALUES (?,?,?,?,?,?)",
 				client,
 				filename,
 				modified,
 				version,
-				syncVersion
+				syncVersion,
+				locked
 				);
 	}
 	
 	public static void insertServerDirectory(String filename, Timestamp modified, long version) throws Exception {
-		insertDirectory(SERVERID, filename, modified, version, 0);
+		insertDirectory(SERVERID, filename, modified, version, 0, false);
 	}
 
 	public static void updateServerDeleted(String filename, boolean deleted) throws Exception {
@@ -150,9 +170,9 @@ public class MyBoxQueryTools {
 				filename);
 	}
 	
-	public static void updateFile(String client, String filename, String checksum, long size, Timestamp modified, long version, long syncVersion) throws Exception {
+	public static void updateFile(String client, String filename, String checksum, long size, Timestamp modified, long version, long syncVersion, boolean locked) throws Exception {
 		DatabaseTools.executeUpdate(
-				"UPDATE mybox_client_files SET checksum=?, size=?, modified=?, version=?, deleted=?, sync_version=? " +
+				"UPDATE mybox_client_files SET checksum=?, size=?, modified=?, version=?, deleted=?, sync_version=?, locked=? " +
 				"WHERE client=? AND filename=?",
 				checksum,
 				size,
@@ -161,11 +181,12 @@ public class MyBoxQueryTools {
 				false,
 				syncVersion,
 				client, 
-				filename
+				filename,
+				locked
 				);
 	}
 	
-	public static void updateFile(Row fileInfo) throws Exception {
+	public static void updateFileOrDirectoryAndLock(Row fileInfo) throws Exception {
 		updateFile(
 				fileInfo.getValueAsString("client"),
 				fileInfo.getValueAsString("filename"),
@@ -173,17 +194,18 @@ public class MyBoxQueryTools {
 				fileInfo.getValueAsLong("size"),
 				fileInfo.getValueAsTimestamp("modified"),
 				fileInfo.getValueAsLong("version"),
-				fileInfo.getValueAsLong("sync_version")
+				fileInfo.getValueAsLong("sync_version"),
+				true
 				);
 	}
 
 	
 	public static void updateDirectory(String client, String filename, Timestamp modified, long version, long syncVersion) throws Exception {
-		updateFile(client, filename, null, 0, modified, version, syncVersion);
+		updateFile(client, filename, null, 0, modified, version, syncVersion, false);
 	}
 
 	public static void updateServerFile(String filename, String checksum, long size, Timestamp modified, long version) throws Exception {
-		updateFile(SERVERID, filename, checksum, size, modified, version, 0);
+		updateFile(SERVERID, filename, checksum, size, modified, version, 0, false);
 		
 	}
 
