@@ -42,7 +42,7 @@ public abstract class DelayedInfiniteThread extends Thread {
 		try {
 			beforeRun();
 		} catch (Exception e) {
-			Log.error("BeforeRun routine exited with errors! " + e.getMessage());
+			Log.error("DelayedInfiniteThread: BeforeRun routine exited with errors! " + e.getMessage());
 			e.printStackTrace();
 			System.exit(ERR_BEFORE_RUN);
 		}
@@ -54,7 +54,7 @@ public abstract class DelayedInfiniteThread extends Thread {
 				runCount++;
 			}
 		} catch (Exception e) {
-			Log.error("DuringRun routine exited with errors! " + e.getMessage());
+			Log.error("DelayedInfiniteThread: DuringRun routine exited with errors! " + e.getMessage());
 			e.printStackTrace();
 			System.exit(ERR_DURING_RUN);
 		}
@@ -62,7 +62,7 @@ public abstract class DelayedInfiniteThread extends Thread {
 		try {
 			afterRun();
 		} catch (Exception e) {
-			Log.error("AfterRun routine exited with errors! " + e.getMessage());
+			Log.error("DelayedInfiniteThread: AfterRun routine exited with errors! " + e.getMessage());
 			e.printStackTrace();
 			System.exit(ERR_AFTER_RUN);
 		}

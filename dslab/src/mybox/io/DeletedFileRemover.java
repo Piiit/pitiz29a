@@ -2,6 +2,8 @@ package mybox.io;
 
 import java.io.File;
 import java.util.ArrayList;
+
+import mybox.query.MyBoxQueryTools;
 import piwotools.database.DatabaseTools;
 import piwotools.database.Row;
 import piwotools.log.Log;
@@ -21,12 +23,18 @@ public class DeletedFileRemover extends DelayedInfiniteThread {
 
 	private ArrayList<Row> getRemovingRequests() throws Exception {
 		return DatabaseTools.getQueryResult(
-				"SELECT * FROM mybox_client_files " +
-				"WHERE client=? " +
-				"AND deleted=? AND is_deleted=?", 
-				id,
-				true,
-				false);
+				"SELECT * FROM mybox_client_files WHERE client=? AND deleted=? AND is_deleted=? UNION " +
+				"SELECT m2.* FROM mybox_client_files m1, mybox_client_files m2  " +
+				"WHERE m1.client=? AND m1.deleted=? AND m1.filename NOT IN " +
+				"(SELECT filename FROM mybox_client_files WHERE client=? AND deleted=? AND is_deleted=?) " +
+				"AND m1.filename = m2.filename " +
+				"AND m2.client=? " +
+				"AND m2.version = m2.sync_version  " +
+				"AND m1.version >= m2.sync_version",
+				id, true, false,
+				MyBoxQueryTools.SERVERID, true,
+				id, true, false,
+				id);
 	}
 	
 	@Override
