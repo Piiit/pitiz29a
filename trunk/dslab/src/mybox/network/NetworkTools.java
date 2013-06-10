@@ -29,16 +29,16 @@ public class NetworkTools {
 		File file = new File(localFilename);
 
 		if(!file.exists()) {
-			throw new Exception("File " + localFilename + " doesn't exist! Skipping upload...");
+			throw new Exception("NetworkTools: File " + localFilename + " doesn't exist! Skipping upload...");
 		}
 		
 		Socket socket = new Socket(hostname, port);
-		Log.debug("FileClient: Connecting to " + hostname + ":" + port);
+		Log.debug("NetworkTools: Connecting to " + hostname + ":" + port);
 		
 		output = new PrintWriter(socket.getOutputStream(), true);
 		output.println(createHeader(true, remoteFilename));
 
-		Log.info("Uploading file " + localFilename + " to " + hostname + ":" + port + "/" + remoteFilename);
+		Log.info("NetworkTools: Uploading file " + localFilename + " to " + hostname + ":" + port + "/" + remoteFilename);
 
 		byte buffer[]  = new byte [BUFFER_SIZE];
 		FileInputStream fis = new FileInputStream(file);
@@ -53,7 +53,7 @@ public class NetworkTools {
 		
 		fis.close();
 		bis.close();
-		Log.info("Uploading file " + localFilename + " completed! " + size + " bytes send.");
+		Log.info("NetworkTools: Uploading file " + localFilename + " completed! " + size + " bytes send.");
 		socket.close();
 	}
 	
@@ -62,13 +62,13 @@ public class NetworkTools {
 		File file = new File(localFilename);
 
 		Socket socket = new Socket(hostname, port);
-		Log.debug("FileClient: Connecting to " + hostname + ":" + port);
+		Log.debug("NetworkTools: Connecting to " + hostname + ":" + port);
 		
 		output = new PrintWriter(socket.getOutputStream(), true);
 		output.println(createHeader(false, remoteFilename));
 		output.flush();
 
-		Log.info("Downloading file from " + hostname + ":" + port + "/" + remoteFilename + " to " + localFilename);
+		Log.info("NetworkTools: Downloading file from " + hostname + ":" + port + "/" + remoteFilename + " to " + localFilename);
 		
 		String path = file.getParent();
 		if(path != null) {
@@ -94,7 +94,7 @@ public class NetworkTools {
 	 	bos.close();
 	 	socket.close();
 
-	 	Log.info("File " + localFilename + " with a size of " + size + " bytes downloaded.");
+	 	Log.info("NetworkTools: File " + localFilename + " with a size of " + size + " bytes downloaded.");
 		
 	}
 	
@@ -108,7 +108,7 @@ public class NetworkTools {
 		InputStream is = socket.getInputStream();
 		k = is.read(buffer, 0, buffer.length);
 		if(k <= 0) {
-			throw new Exception("Invalid filename with length = 0 received!");
+			throw new Exception("NetworkTools: Invalid filename with length = 0 received!");
 		}
 	  
 		String stringBuffer = new String(buffer);
@@ -116,11 +116,9 @@ public class NetworkTools {
 		String filename = stringBuffer.substring(1, stringBuffer.indexOf(HEADER_FILENAME_END));
 		int offset = (filename + HEADER_FILENAME_END).length() + 2;
 		
-//		System.out.println("NetworkTools-fileServer: " + stringBuffer + isClientUpload +stringBuffer.substring(0, 1));
-		
 		if(isClientUpload) {
 			
-			Log.info("Receiving file " + filename);
+			Log.info("NetworkTools: Receiving file " + filename);
 			File file = new File(filename);
 			String path = file.getParent();
 			if(path != null) {
@@ -132,7 +130,6 @@ public class NetworkTools {
 			FileOutputStream fos = new FileOutputStream(defaultPath + filename);
 			BufferedOutputStream bos = new BufferedOutputStream(fos);
 			bos.write(buffer, offset, k - offset);
-//			System.out.println("Writing" + buffer);
 			size += k - offset;
 			while((k = is.read(buffer, 0, buffer.length)) > -1) {
 				bos.write(buffer, 0, k);
@@ -143,12 +140,10 @@ public class NetworkTools {
 			fos.close();
 		 	bos.close();
 		 	
-//		 	System.out.println("DONE 1");
-		 	
 		} else {
 			File file = new File(defaultPath + "/" + filename);
 			filename = file.getCanonicalPath();
-			Log.info("Sending file " + filename);
+			Log.info("NetworkTools: Sending file " + filename);
 
 			FileInputStream fis = new FileInputStream(file);
 			BufferedInputStream bis = new BufferedInputStream(fis);
@@ -166,7 +161,7 @@ public class NetworkTools {
 		}
 		
 		long end = System.currentTimeMillis();
-	 	Log.info("File " + filename + " with a size of " + size + " bytes uploaded in " + (end-start)/1000 + " seconds.");
+	 	Log.info("NetworkTools: File " + filename + " with a size of " + size + " bytes uploaded in " + (end-start)/1000 + " seconds.");
 
 	}
 }
