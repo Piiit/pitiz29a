@@ -22,13 +22,13 @@ public class FileServer extends Thread {
 		try {
 			serverSocket = new ServerSocket(port);
 		    while (true) {
-	    		Log.debug("FileServer is waiting for new connections...");
+	    		Log.debug("FileServer: Waiting for new connections...");
 	    		socket = serverSocket.accept();
-	    		Log.debug("Accepted connection: " + socket);
+	    		Log.debug("FileServer: Accepted connection: " + socket);
 	    		NetworkTools.fileServer(socket, directory);
 	    		if(socket != null) {
 					socket.close();
-	    			Log.debug(socket + " closed!");
+	    			Log.debug("FileServer: " + socket + " closed!");
 				}
 		    }
 		} catch (Exception e) {

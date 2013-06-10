@@ -43,7 +43,7 @@ public class FileClient extends DelayedInfiniteThread {
 				MyBoxQueryTools.updateServerEntryAndSyncVersion(fileEntry, MyBoxQueryTools.getServerFileInfo(filename));
 			}
 			
-			Log.debug("FileClient ready, next run in 10 seconds.");
+			Log.debug("FileClient: Ready, next run in 10 seconds.");
 			Thread.sleep(getDelay());
 		} catch (Exception e) {
 			e.printStackTrace();
