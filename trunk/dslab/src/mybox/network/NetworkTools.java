@@ -13,7 +13,7 @@ import piwotools.log.Log;
 
 public class NetworkTools {
 	
-	private static final int BUFFER_SIZE = 4096;
+	private static final int BUFFER_SIZE = 8192;
 	private static final String HEADER_FILENAME_END = "<<<FILENAME_END>>>";
 	private static final String HEADER_UPLOAD_CHAR = "U";
 	private static final String HEADER_DOWNLOAD_CHAR = "D";

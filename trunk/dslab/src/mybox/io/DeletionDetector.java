@@ -45,7 +45,7 @@ public class DeletionDetector extends DelayedInfiniteThread {
 			String filename = fileEntry.getValueAsString("filename");
 			File file = new File(directory + filename);
 			if(!file.exists() || file.isHidden()) {
-				Log.info("Found deleted file or directory: " + file.getAbsolutePath());
+				Log.info("DeletionDetector: Found deleted file or directory: " + file.getAbsolutePath());
 				
 				DatabaseTools.executeUpdate(
 						"UPDATE mybox_client_files SET deleted=?, modified=?, version=?, is_deleted=? WHERE filename=? AND client=?", 
@@ -77,7 +77,7 @@ public class DeletionDetector extends DelayedInfiniteThread {
 								filename,
 								id);
 					} else {
-						Log.warn("The file " + filename + " is out of synch!");
+						Log.warn("DeletionDetector: The file " + filename + " is out of sync!");
 					}
 				}
 			}

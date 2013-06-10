@@ -43,7 +43,7 @@ public abstract class FileIndexer extends DelayedInfiniteThread {
 	
 	@Override
 	public void duringRun() throws Exception {
-		Log.debug("FileIndexer for directory '" + directory + "': run " + getRun() + " started!");
+		Log.debug("FileIndexer: Directory '" + directory + "': run " + getRun() + " started!");
 		
 		FileTools.fileWalker(directory, new FileWalker() {
 
@@ -65,7 +65,7 @@ public abstract class FileIndexer extends DelayedInfiniteThread {
 			
 		});
 		
-		Log.debug("FileIndexer for directory '" + directory + "': run " + getRun() + " completed! Next start in " + getDelay()/1000 + " seconds.");
+		Log.debug("FileIndexer: Directory '" + directory + "': run " + getRun() + " completed! Next start in " + getDelay()/1000 + " seconds.");
 	}
 	
 	@Override

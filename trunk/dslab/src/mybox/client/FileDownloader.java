@@ -72,11 +72,6 @@ public class FileDownloader extends DelayedInfiniteThread {
 				MyBoxQueryTools.updateFile(clientFileInfo);
 			}
 			
-//			FileClientSingle fileClient = new FileClientSingle(clientId, directory, filename, server, port);
-//			fileClient.setType(false);
-//			fileClient.start();
-//			fileClient.join();
-			
 			FileClientSingle.downloadAsync(filename, clientId, directory, server, port);
 			
 		}

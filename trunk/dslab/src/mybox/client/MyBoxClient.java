@@ -21,7 +21,7 @@ public class MyBoxClient {
 		Log.setEnvVariableForDebug("MYBOX_CLIENT_DEBUG");
 
 		if(args.length != 2) {
-			Log.error("Parameter missing! Usage: MyBoxClient clientID myBoxHomeDirectory");
+			Log.error("MyBoxClient: Parameter missing! Usage: MyBoxClient clientID myBoxHomeDirectory");
 			System.exit(1);
 		}
 
@@ -30,13 +30,13 @@ public class MyBoxClient {
 		
 		clientDir = (new File(clientDir)).getCanonicalPath() + "/";
 
-		Log.info(Log.getLevelInfo());
-		Log.info("Welcome to myBox, " + clientId + "! Your MyBox directory is " + clientDir);
+		Log.info("MyBoxClient: " + Log.getLevelInfo());
+		Log.info("MyBoxClient: Welcome to myBox, " + clientId + "! Your MyBox directory is " + clientDir);
 		
 		try {
 			DatabaseConnection.setup("jdbc:postgresql://localhost/openreg?user=user&password=qwertz");
 		} catch (Exception e) {
-			Log.error("Unable to connect to specified database! " + e.getMessage());
+			Log.error("MyBoxClient: Unable to connect to specified database! " + e.getMessage());
 			e.printStackTrace();
 			System.exit(1);
 		}
@@ -77,7 +77,7 @@ public class MyBoxClient {
 		}
 		
 		
-	   	Log.info("All operations successfull! Exiting...");
+	   	Log.info("MyBoxClient: All operations successfull! Exiting...");
 	   	System.exit(0);
 	}
 

@@ -1,6 +1,7 @@
 package mybox.client;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.sql.Timestamp;
 import piwotools.database.Row;
 import piwotools.io.FileTools;
@@ -36,8 +37,6 @@ public class ClientFileIndexer extends FileIndexer {
 			return;
 		}
 		
-//		System.out.println(getDirectory());
-
 		//File found on local file system...
 		try {
 			clientFileInfo = MyBoxQueryTools.getFileInfo(clientId, myboxFilename);
@@ -75,15 +74,22 @@ public class ClientFileIndexer extends FileIndexer {
 			
 			if((isFile() && dbFilesize != getFile().length()) || clientFileInfo.getValueAsDate("modified").before(fileTimestamp) || serverFileInfo == null) {
 
-//				System.out.println(1);
-				String checksum = isFile() ? FileTools.createSHA1checksum(filename) : null;
+				String checksum = null;
+				try {
+					checksum = isFile() ? FileTools.createSHA1checksum(filename) : null;
+				} catch (FileNotFoundException e) {
+					clientFileInfo = MyBoxQueryTools.getFileInfo(clientId, myboxFilename);
+					if(clientFileInfo.getValueAsBoolean("deleted")) {
+						Log.info("ClientFileIndexer: Previously selected file '" + myboxFilename + "' has been deleted. Skipping...");
+						return;
+					} 
+					throw e;
+				}
 
 				long clientVersion = clientFileInfo.getValueAsLong("version");
 				if((isFile()  && !checksum.equalsIgnoreCase(clientFileInfo.getValueAsStringNotNull("checksum"))) || clientFileInfo.getValueAsBoolean("deleted")) {
 					clientVersion++;
 				}
-				
-//				Log.info(getTypeString() + " '" + myboxFilename + "' has been changed.");
 				
 				//File changed locally, but server hasn't any file info...
 				if(serverFileInfo == null) {
@@ -126,7 +132,7 @@ public class ClientFileIndexer extends FileIndexer {
 
 	
 	private void onFileUpdateClient() throws Exception {
-		Log.info("onFileUpdateClient: Downloading " + getTypeString() + " " + filename);
+		Log.info("ClientFileIndexer: onFileUpdateClient: Downloading " + getTypeString() + " " + filename);
 		
 		String checksum = isFile() ? FileTools.createSHA1checksum(filename) : null;
 		long clientVersion = clientFileInfo.getValueAsLong("version");
@@ -195,7 +201,7 @@ public class ClientFileIndexer extends FileIndexer {
 		if(isFile()) {
 			conflictHandling();
 		} else {
-			Log.info("Directory found: " + myboxFilename);
+			Log.info("ClientFileIndexer: Directory found: " + myboxFilename);
 			MyBoxQueryTools.insertDirectory(clientId, myboxFilename, (Timestamp)serverFileInfo.getValue("modified"), serverFileInfo.getValueAsLong("version"), serverFileInfo.getValueAsLong("version"));
 		}
 	}
