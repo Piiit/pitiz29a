@@ -37,8 +37,8 @@ public class DeletionDetector extends DelayedInfiniteThread {
 	@Override
 	public void duringRun() throws Exception {
 		ArrayList<Row> fileEntries = DatabaseTools.getQueryResult(
-				"SELECT * FROM mybox_client_files WHERE deleted=? AND client=?",
-				false,
+				"SELECT * FROM mybox_client_files WHERE deleted=? AND locked=? AND client=? ",
+				false, false,
 				id
 				);
 		

@@ -101,7 +101,7 @@ public class ClientFileIndexer extends FileIndexer {
 				// and server_version == sync_version... perform a restore!
 				long serverVersion = serverFileInfo.getValueAsLong("version");
 				long syncVersion = clientFileInfo.getValueAsLong("sync_version");
-				if(serverVersion == syncVersion || (checksum.equalsIgnoreCase(serverFileInfo.getValueAsString("checksum")) && !clientFileInfo.getValueAsBoolean("deleted"))) {
+				if(serverVersion == syncVersion || (checksum != null && checksum.equalsIgnoreCase(serverFileInfo.getValueAsString("checksum")) && !clientFileInfo.getValueAsBoolean("deleted"))) {
 					onFileUpdateServer();
 					return;
 				}
@@ -144,7 +144,7 @@ public class ClientFileIndexer extends FileIndexer {
 
 
 		if(isFile()) {
-			MyBoxQueryTools.updateFile(clientId, myboxFilename, checksum, getFile().length(), fileTimestamp, clientVersion, clientVersion);
+			MyBoxQueryTools.updateFile(clientId, myboxFilename, checksum, getFile().length(), fileTimestamp, clientVersion, clientVersion, false);
 			FileClientSingle.downloadAsync(myboxFilename, clientId, getDirectory(), server, port);
 		} else {
 			MyBoxQueryTools.updateDirectory(clientId, myboxFilename, fileTimestamp, clientVersion, clientVersion);
@@ -165,7 +165,7 @@ public class ClientFileIndexer extends FileIndexer {
 		java.sql.Timestamp fileTimestamp = new java.sql.Timestamp(getFile().lastModified());
 		
 		if(isFile()) {
-			MyBoxQueryTools.updateFile(clientId, myboxFilename, checksum, getFile().length(), fileTimestamp, clientVersion, clientVersion);
+			MyBoxQueryTools.updateFile(clientId, myboxFilename, checksum, getFile().length(), fileTimestamp, clientVersion, clientVersion, false);
 			if(!checksum.equalsIgnoreCase(clientFileInfo.getValueAsStringNotNull("checksum"))) {
 				FileClientSingle.uploadAsync(myboxFilename, clientId, getDirectory(), server, port);
 			}
@@ -187,7 +187,7 @@ public class ClientFileIndexer extends FileIndexer {
 
 
 		if(isFile()) {
-			MyBoxQueryTools.updateFile(clientId, myboxFilename, checksum, getFile().length(), fileTimestamp, clientVersion, clientVersion);
+			MyBoxQueryTools.updateFile(clientId, myboxFilename, checksum, getFile().length(), fileTimestamp, clientVersion, clientVersion, false);
 			FileClientSingle.uploadAsync(myboxFilename, clientId, getDirectory(), server, port);
 		} else {
 			MyBoxQueryTools.updateDirectory(clientId, myboxFilename, fileTimestamp, clientVersion, clientVersion);

@@ -1,8 +1,10 @@
 package mybox.client;
 
+import java.io.File;
 import java.util.ArrayList;
 import piwotools.database.DatabaseTools;
 import piwotools.database.Row;
+import piwotools.log.Log;
 import piwotools.thread.DelayedInfiniteThread;
 import mybox.network.FileClientSingle;
 import mybox.query.MyBoxQueryTools;
@@ -25,7 +27,7 @@ public class FileDownloader extends DelayedInfiniteThread {
 	public ArrayList<Row> getFileToDownload() throws Exception {
 		return DatabaseTools.getQueryResult(
 				"select mcf1.* from mybox_client_files mcf1, mybox_client_files mcf2 " +
-				"where mcf1.client=?  " +
+				"where mcf1.client=? " +
 				"and mcf1.deleted=?  " +
 				"and mcf1.locked=? " +
 				"and mcf2.locked=? " +
@@ -35,7 +37,7 @@ public class FileDownloader extends DelayedInfiniteThread {
 				"and mcf1.filename = mcf2.filename) " +
 				"union " +
 				"select * from mybox_client_files " +
-				"where client=?  " +
+				"where client=? " +
 				"and deleted=?  " +
 				"and locked=? " +
 				"and filename not in (select filename from mybox_client_files where client=?) ",
@@ -59,8 +61,9 @@ public class FileDownloader extends DelayedInfiniteThread {
 			
 			String filename = fileInfo.getValueAsString("filename");
 			Row clientFileInfo = MyBoxQueryTools.getFileInfo(clientId, filename);
+			
 			if(clientFileInfo == null) {
-				MyBoxQueryTools.insertFile(clientId, filename, 
+				MyBoxQueryTools.insertFileOrDirectoryAndLock(clientId, filename, 
 						fileInfo.getValueAsString("checksum"), 
 						fileInfo.getValueAsLong("size"),
 						fileInfo.getValueAsTimestamp("modified"),
@@ -69,10 +72,21 @@ public class FileDownloader extends DelayedInfiniteThread {
 						);
 			} else {
 				clientFileInfo.setValue("client", clientId);
-				MyBoxQueryTools.updateFile(clientFileInfo);
+				MyBoxQueryTools.updateFileOrDirectoryAndLock(clientFileInfo);
 			}
+			MyBoxQueryTools.lockFile(filename, clientId);
 			
-			FileClientSingle.downloadAsync(filename, clientId, directory, server, port);
+			//Directory found, if no checksum present...
+			if(fileInfo.getValueAsString("checksum") == null) {
+				if ((new File(directory + filename)).mkdirs()) {
+					Log.info("FileDownloader: New folder '" + directory + filename + "' created!");
+				} else {
+					Log.error("FileDownloader: Can't create new folder '" + directory + filename + "'!");
+				}
+			} else {
+				FileClientSingle.downloadAsync(filename, clientId, directory, server, port);
+			}
+			MyBoxQueryTools.unlockFile(filename, clientId);
 			
 		}
 	}
