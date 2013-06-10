@@ -1,3 +1,17 @@
-# This is just for testing, put your test db connection string here!
-# URL=...
-URL=jdbc:postgresql://localhost/openreg?user=user&password=qwertz
+-- This is just for testing, put your test db connection string here!
+-- URL=...
+-- URL=jdbc:postgresql://localhost/openreg?user=user&password=qwertz
+
+CREATE TABLE mybox_client_files
+(
+  client character varying NOT NULL,
+  filename character varying NOT NULL,
+  deleted boolean DEFAULT false,
+  checksum character varying,
+  size bigint,
+  modified timestamp with time zone,
+  version bigint,
+  locked boolean DEFAULT false,
+  sync_version bigint DEFAULT 0,
+  is_deleted boolean DEFAULT false
+)
