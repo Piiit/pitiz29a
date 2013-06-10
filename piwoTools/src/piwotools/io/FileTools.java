@@ -47,10 +47,10 @@ public class FileTools {
 	private static void fileWalkerRecursive(final File folder, FileWalker filewalker) throws Exception {
 	    for (final File fileEntry : folder.listFiles()) {
 	        if (fileEntry.isDirectory()) {
-	        	filewalker.isDirectory(fileEntry.getCanonicalPath());
+	        	filewalker.onDirectory(fileEntry.getCanonicalPath());
 	            fileWalkerRecursive(fileEntry, filewalker);
 	        } else {
-	        	filewalker.isFile(fileEntry.getCanonicalPath());
+	        	filewalker.onFile(fileEntry.getCanonicalPath());
 	        }
 	    }
 	}	

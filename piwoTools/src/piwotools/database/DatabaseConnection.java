@@ -17,11 +17,11 @@ public final class DatabaseConnection {
 	private static Connection connection = null;
 	
 	public static void setup(final String connectionURL) throws Exception {
-		Log.debug("Connecting to " + safeConnectionURL(connectionURL));
+		Log.debug("DatabaseConnection: Connecting to " + safeConnectionURL(connectionURL));
 		Class.forName("org.postgresql.Driver");
 		DriverManager.setLoginTimeout(LOGINTIMEOUT);
 		connection = DriverManager.getConnection(connectionURL);
-		Log.info("New database connection established: " + safeConnectionURL(connectionURL));
+		Log.info("DatabaseConnection: New database connection established: " + safeConnectionURL(connectionURL));
 	}
 	
 	public static void setup() throws Exception {
@@ -44,7 +44,7 @@ public final class DatabaseConnection {
 	public static void close() throws Exception {
 		if(connection != null && !connection.isClosed()) {
 			connection.close();
-			Log.info("Database connection closed!");
+			Log.info("DatabaseConnection: Database connection closed!");
 		}
 	}
 	
