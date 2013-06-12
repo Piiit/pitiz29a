@@ -46,7 +46,7 @@ public class ClientFileIndexer extends FileIndexer {
 
 			checksum = null;
 			try {
-				checksum = isFile() ? FileTools.createSHA1checksum(filename) : null;
+				checksum = isFile() && getFile().exists() ? FileTools.createSHA1checksum(filename) : null;
 			} catch (FileNotFoundException e) {
 				clientFileInfo = MyBoxQueryTools.getFileInfo(clientId, myboxFilename);
 				if(clientFileInfo.getValueAsBoolean("deleted")) {
@@ -207,6 +207,7 @@ public class ClientFileIndexer extends FileIndexer {
 	}
 
 	private void onFileNotOnServer() throws Exception {
+		Log.info("ClientFileIndexer: onFileNotOnServer: " + filename);
 		
 		long clientVersion = clientFileInfo.getValueAsLong("version");
 		if((isFile()  && !checksum.equalsIgnoreCase(clientFileInfo.getValueAsStringNotNull("checksum"))) || clientFileInfo.getValueAsBoolean("deleted")) {
@@ -224,7 +225,8 @@ public class ClientFileIndexer extends FileIndexer {
 	}
 
 	private void onNewFileOnServerExists() throws Exception {
-		
+		Log.info("ClientFileIndexer: onNewFileOnServerExists: " + filename);
+
 		if(isFile()) {
 			conflictHandling();
 		} else {
@@ -262,11 +264,11 @@ public class ClientFileIndexer extends FileIndexer {
 	}
 
 	private void onNewFileLockedOnServer() {
-		Log.info("New " + getTypeString() + " '" + myboxFilename + "' found. Locked on server! Skipping...");
+		Log.info("ClientFileIndexer: onNewFileLockedOnServer: New " + getTypeString() + " '" + myboxFilename + "' found. Locked on server! Skipping...");
 	}
 
 	private void onNewFilePreviouslyDeleted() throws Exception {
-		Log.info("New " + getTypeString() + " '" + myboxFilename + "' found. Previously deleted on server!");
+		Log.info("ClientFileIndexer: onNewFilePreviouslyDeleted: New " + getTypeString() + " '" + myboxFilename + "' found. Previously deleted on server!");
 
 		long version = serverFileInfo.getValueAsLong("version") + 1;
 
@@ -282,7 +284,7 @@ public class ClientFileIndexer extends FileIndexer {
 	}
 
 	private void onNewFile() throws Exception {
-		Log.info("New " + getTypeString() + " '" + myboxFilename + "' found. Not present on server!");
+		Log.info("ClientFileIndexer: onNewFile: New " + getTypeString() + " '" + myboxFilename + "' found. Not present on server!");
 
 		if(isFile()) {
 			MyBoxQueryTools.insertFile(clientId, myboxFilename, checksum, getFile().length(), fileTimestamp, 0, 0);
