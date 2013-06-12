@@ -3,6 +3,7 @@ package mybox.client;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.sql.Timestamp;
+import piwotools.database.DatabaseTools;
 import piwotools.database.Row;
 import piwotools.io.FileTools;
 import piwotools.log.Log;
@@ -16,11 +17,11 @@ public class ClientFileIndexer extends FileIndexer {
 	private String myboxFilename;
 	private String filename;
 	private String server;
+	private String checksum;
+	private Timestamp fileTimestamp = null;
 	private int port;
 	private Row clientFileInfo = null;
 	private Row serverFileInfo = null;
-	
-
 	
 	public ClientFileIndexer(String clientId, String directory, String server, int port) {
 		super();
@@ -41,9 +42,20 @@ public class ClientFileIndexer extends FileIndexer {
 		try {
 			clientFileInfo = MyBoxQueryTools.getFileInfo(clientId, myboxFilename);
 			serverFileInfo = MyBoxQueryTools.getServerFileInfo(myboxFilename);
-			
-			java.sql.Timestamp fileTimestamp = new java.sql.Timestamp(getFile().lastModified());
+			fileTimestamp = new Timestamp(getFile().lastModified());
 
+			checksum = null;
+			try {
+				checksum = isFile() ? FileTools.createSHA1checksum(filename) : null;
+			} catch (FileNotFoundException e) {
+				clientFileInfo = MyBoxQueryTools.getFileInfo(clientId, myboxFilename);
+				if(clientFileInfo.getValueAsBoolean("deleted")) {
+					Log.info("ClientFileIndexer: Previously selected file '" + myboxFilename + "' has been deleted. Skipping...");
+					return;
+				} 
+				throw e;
+			}
+			
 			//New file found, no client file info present...
 			if(clientFileInfo == null) {
 				
@@ -67,81 +79,102 @@ public class ClientFileIndexer extends FileIndexer {
 				//server file info exists, it is a directory OR it must be different from newly found local file... 
 				onNewFileOnServerExists();
 				return;
-			}					
-				
-			//File changed, client file info present...
-			long dbFilesize = isFile() ? clientFileInfo.getValueAsLong("size") : 0;
+			}	
+
+			// Client file has been deleted before... perform a restore!
+			if(clientFileInfo.getValueAsBoolean("is_deleted")) {
+				onFilePreviouslyDeleted();
+			}
 			
-			if((isFile() && dbFilesize != getFile().length()) || clientFileInfo.getValueAsDate("modified").before(fileTimestamp) || serverFileInfo == null) {
-
-				String checksum = null;
-				try {
-					checksum = isFile() ? FileTools.createSHA1checksum(filename) : null;
-				} catch (FileNotFoundException e) {
-					clientFileInfo = MyBoxQueryTools.getFileInfo(clientId, myboxFilename);
-					if(clientFileInfo.getValueAsBoolean("deleted")) {
-						Log.info("ClientFileIndexer: Previously selected file '" + myboxFilename + "' has been deleted. Skipping...");
-						return;
-					} 
-					throw e;
-				}
-
-				long clientVersion = clientFileInfo.getValueAsLong("version");
-				if((isFile()  && !checksum.equalsIgnoreCase(clientFileInfo.getValueAsStringNotNull("checksum"))) || clientFileInfo.getValueAsBoolean("deleted")) {
-					clientVersion++;
-				}
+			//File changed locally, but new on server! (No need to check contents here)
+			if(serverFileInfo == null) {
+				onFileNotOnServer();
+				return;
+			}
+			
+			long serverVersion = serverFileInfo.getValueAsLong("version");
+			long syncVersion = clientFileInfo.getValueAsLong("sync_version");
+			long clientVersion = clientFileInfo.getValueAsLong("version");
+			
+			//File changed locally...
+			if(fileContentChanged()) {
 				
-				//File changed locally, but server hasn't any file info...
-				if(serverFileInfo == null) {
-					onFileNotOnServer();
-					return;
-				}
+				clientVersion++;
 				
-				// If server file and client file have been deleted before 
-				// and server_version == sync_version... perform a restore!
-				long serverVersion = serverFileInfo.getValueAsLong("version");
-				long syncVersion = clientFileInfo.getValueAsLong("sync_version");
-				if(serverVersion == syncVersion || (checksum != null && checksum.equalsIgnoreCase(serverFileInfo.getValueAsString("checksum")) && !clientFileInfo.getValueAsBoolean("deleted"))) {
+				// Local file is in sync with server...
+				if(syncVersion == serverVersion) {
 					onFileUpdateServer();
 					return;
 				}
 				
-				// Local files have not been changed since last sync
-				// Server version is newer, download new file...
-				if(serverVersion > syncVersion && syncVersion == clientVersion) {
-					onFileUpdateClient();
-					return;
-				}
-				
-				
 				// Move local file, insert local file info with new name... do not insert the old filename, should be done by FileDownloader...
 				conflictHandling();
-				
-				// If file has not been deleted on client side and the sync_version differs only by one, and now further 
-				// changes have been made... delete the file.
-				// >>> SHOULD BE DONE BY FILE REMOVER...
-//				if(!clientFileInfo.getValueAsBoolean("deleted") && (serverVersion - 1) == syncVersion && version == syncVersion) {
-//					
-//				}
+
 			}
+
+			// Local file has not been changed since last sync
+			// Server version is newer, download new file...
+			if(serverVersion > syncVersion && syncVersion == clientVersion) {
+				onFileUpdateClient();
+				return;
+			}
+			
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 
 	}
 
+	private void onFilePreviouslyDeleted() throws Exception {
+		DatabaseTools.executeUpdate(
+				"UPDATE mybox_client_files SET deleted=?, is_deleted=? WHERE client=? AND filename=?",
+				false, false, clientId, myboxFilename);
+		
+		
+	}
+
+	private boolean fileContentChanged() throws Exception {
+		
+		if(isFile()) {
+
+			if(clientFileInfo.getValueAsLong("size") != getFile().length()) {
+				return true;
+			}
+			
+			if(!clientFileInfo.getValueAsDate("modified").equals(fileTimestamp)) {
+				
+				if(!checksum.equalsIgnoreCase(clientFileInfo.getValueAsString("checksum"))) {
+					DatabaseTools.executeUpdate(
+							"UPDATE mybox_client_files SET modified=? WHERE client=? AND filename=? AND locked=?",
+							fileTimestamp, clientId, myboxFilename, false);
+					Log.info("ClientFileIndexer: Only timestamps of file '" + myboxFilename + "' changed, updated...");
+					return false;
+				}
+				
+				return true;
+			}
+
+			return false;
+		}
+		
+		if(!clientFileInfo.getValueAsDate("modified").equals(fileTimestamp)) {
+			DatabaseTools.executeUpdate(
+					"UPDATE mybox_client_files SET modified=? WHERE client=? AND filename=? AND locked=?",
+					fileTimestamp, clientId, myboxFilename, false);
+			Log.info("ClientFileIndexer: Only timestamps of file '" + myboxFilename + "' changed, updated...");
+		}
+		
+		return false;
+	}
+
 	
 	private void onFileUpdateClient() throws Exception {
 		Log.info("ClientFileIndexer: onFileUpdateClient: Downloading " + getTypeString() + " " + filename);
 		
-		String checksum = isFile() ? FileTools.createSHA1checksum(filename) : null;
 		long clientVersion = clientFileInfo.getValueAsLong("version");
 		if((isFile()  && !checksum.equalsIgnoreCase(clientFileInfo.getValueAsStringNotNull("checksum"))) || clientFileInfo.getValueAsBoolean("deleted")) {
 			clientVersion++;
 		}
-
-		java.sql.Timestamp fileTimestamp = new java.sql.Timestamp(getFile().lastModified());
-
 
 		if(isFile()) {
 			MyBoxQueryTools.updateFile(clientId, myboxFilename, checksum, getFile().length(), fileTimestamp, clientVersion, clientVersion, false);
@@ -154,16 +187,13 @@ public class ClientFileIndexer extends FileIndexer {
 	}
 
 	private void onFileUpdateServer() throws Exception {
-		Log.info("onFileUpdateServer");
+		Log.info("ClientFileIndexer: onFileUpdateServer: " + filename);
 		
-		String checksum = isFile() ? FileTools.createSHA1checksum(filename) : null;
 		long clientVersion = clientFileInfo.getValueAsLong("version");
 		if((isFile()  && !checksum.equalsIgnoreCase(clientFileInfo.getValueAsStringNotNull("checksum"))) || clientFileInfo.getValueAsBoolean("deleted")) {
 			clientVersion++;
 		}
 
-		java.sql.Timestamp fileTimestamp = new java.sql.Timestamp(getFile().lastModified());
-		
 		if(isFile()) {
 			MyBoxQueryTools.updateFile(clientId, myboxFilename, checksum, getFile().length(), fileTimestamp, clientVersion, clientVersion, false);
 			if(!checksum.equalsIgnoreCase(clientFileInfo.getValueAsStringNotNull("checksum"))) {
@@ -178,13 +208,10 @@ public class ClientFileIndexer extends FileIndexer {
 
 	private void onFileNotOnServer() throws Exception {
 		
-		String checksum = isFile() ? FileTools.createSHA1checksum(filename) : null;
 		long clientVersion = clientFileInfo.getValueAsLong("version");
 		if((isFile()  && !checksum.equalsIgnoreCase(clientFileInfo.getValueAsStringNotNull("checksum"))) || clientFileInfo.getValueAsBoolean("deleted")) {
 			clientVersion++;
 		}
-		java.sql.Timestamp fileTimestamp = new java.sql.Timestamp(getFile().lastModified());
-
 
 		if(isFile()) {
 			MyBoxQueryTools.updateFile(clientId, myboxFilename, checksum, getFile().length(), fileTimestamp, clientVersion, clientVersion, false);
@@ -209,16 +236,13 @@ public class ClientFileIndexer extends FileIndexer {
 	private void conflictHandling() throws Exception {
 		
 		//Try to restore file info if checksums are equal...
-		String checksum = FileTools.createSHA1checksum(filename);
 		if(checksum.equalsIgnoreCase(serverFileInfo.getValueAsString("checksum"))) {
-			Log.info("Restoring fileinfo of " + myboxFilename + " successfull!");
+			Log.info("Restoring fileinfo of " + myboxFilename + " successful!");
 			
 			//TODO What if entry already exists?
 			MyBoxQueryTools.insertFile(clientId, myboxFilename, checksum, getFile().length(), (Timestamp)serverFileInfo.getValue("modified"), serverFileInfo.getValueAsLong("version"), serverFileInfo.getValueAsLong("version"));
 			return;
 		}
-
-		Timestamp fileTimestamp = FileTools.getFileModifiedAsSqlTimestamp(getFile());
 
 		//...CONFLICT... Trying to move to a new file...
 		Log.warn("New " + getTypeString() + " '" + myboxFilename + "' is out of sync. Different file exists on server with same name.");
@@ -245,10 +269,8 @@ public class ClientFileIndexer extends FileIndexer {
 		Log.info("New " + getTypeString() + " '" + myboxFilename + "' found. Previously deleted on server!");
 
 		long version = serverFileInfo.getValueAsLong("version") + 1;
-		Timestamp fileTimestamp = FileTools.getFileModifiedAsSqlTimestamp(getFile());
 
 		if(isFile()) {
-			String checksum = FileTools.createSHA1checksum(filename);
 			MyBoxQueryTools.insertFile(clientId, myboxFilename, checksum, getFile().length(), fileTimestamp, version, version);
 			FileClientSingle.uploadAsync(myboxFilename, clientId, getDirectory(), server, port);
 		} else {
@@ -261,10 +283,8 @@ public class ClientFileIndexer extends FileIndexer {
 
 	private void onNewFile() throws Exception {
 		Log.info("New " + getTypeString() + " '" + myboxFilename + "' found. Not present on server!");
-		
-		Timestamp fileTimestamp = FileTools.getFileModifiedAsSqlTimestamp(getFile());
+
 		if(isFile()) {
-			String checksum = FileTools.createSHA1checksum(filename);
 			MyBoxQueryTools.insertFile(clientId, myboxFilename, checksum, getFile().length(), fileTimestamp, 0, 0);
 			FileClientSingle.uploadAsync(myboxFilename, clientId, getDirectory(), server, port);
 		} else {

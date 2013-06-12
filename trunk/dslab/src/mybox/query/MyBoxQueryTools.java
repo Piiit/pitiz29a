@@ -180,9 +180,9 @@ public class MyBoxQueryTools {
 				version,
 				false,
 				syncVersion,
+				locked,
 				client, 
-				filename,
-				locked
+				filename
 				);
 	}
 	
