@@ -65,7 +65,7 @@ public class FileDownloader extends DelayedInfiniteThread {
 			if(clientFileInfo == null) {
 				MyBoxQueryTools.insertFileOrDirectoryAndLock(clientId, filename, 
 						fileInfo.getValueAsString("checksum"), 
-						fileInfo.getValueAsLong("size"),
+						fileInfo.getValueAsLong("size") == null ? 0 : fileInfo.getValueAsLong("size"),
 						fileInfo.getValueAsTimestamp("modified"),
 						fileInfo.getValueAsLong("version"),
 						fileInfo.getValueAsLong("sync_version")

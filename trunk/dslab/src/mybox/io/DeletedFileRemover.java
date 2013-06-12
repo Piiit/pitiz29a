@@ -43,16 +43,16 @@ public class DeletedFileRemover extends DelayedInfiniteThread {
 
 	@Override
 	public void duringRun() throws Exception {
-		ArrayList<Row> filesToDelete = getRemovingRequests();
-		for(Row fileEntry : filesToDelete) {
+		for(Row fileEntry : getRemovingRequests()) {
 			String filename = directory + fileEntry.getValueAsString("filename");
 			File file = new File(filename);
 			if(file.exists()) {
 				if(file.delete()) {
 					Log.info("DeletedFileRemover: Removing file " + file.getCanonicalPath());
+					Row serverFileInfo = MyBoxQueryTools.getServerFileInfo(fileEntry.getValueAsString("filename"));
 					DatabaseTools.executeUpdate(
-							"UPDATE mybox_client_files SET is_deleted=? WHERE client=? AND filename=?",
-							true,
+							"UPDATE mybox_client_files SET is_deleted=?, sync_version=? WHERE client=? AND filename=?",
+							true, serverFileInfo.getValueAsLong("version"),
 							id,
 							fileEntry.getValueAsString("filename")
 							);
