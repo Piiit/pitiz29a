@@ -37,8 +37,8 @@ public class DeletionDetector extends DelayedInfiniteThread {
 	@Override
 	public void duringRun() throws Exception {
 		ArrayList<Row> fileEntries = DatabaseTools.getQueryResult(
-				"SELECT * FROM mybox_client_files WHERE deleted=? AND locked=? AND client=? ",
-				false, false,
+				"SELECT * FROM mybox_client_files WHERE deleted=? AND is_deleted=? AND locked=? AND client=? ",
+				false, false, false,
 				id
 				);
 		
@@ -60,10 +60,10 @@ public class DeletionDetector extends DelayedInfiniteThread {
 				
 				//Check if server file can be deleted...
 				Row serverData = MyBoxQueryTools.getServerFileInfo(filename);
-				if(serverData != null) {
+				if(serverData != null && !serverData.getValueAsBoolean("locked")) {
 					long serverVersion = serverData.getValueAsLong("version");
 					long clientSyncVersion = fileEntry.getValueAsLong("sync_version");
-					if(serverData.getValueAsBoolean("locked") == false && serverVersion <= clientSyncVersion) {
+					if(serverVersion <= clientSyncVersion) {
 						DatabaseTools.executeUpdate(
 								"UPDATE mybox_client_files SET deleted=?, modified=?, version=? WHERE filename=? AND client=?", 
 								true,
