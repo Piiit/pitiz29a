@@ -172,12 +172,13 @@ public class MyBoxQueryTools {
 	
 	public static void updateFile(String client, String filename, String checksum, long size, Timestamp modified, long version, long syncVersion, boolean locked) throws Exception {
 		DatabaseTools.executeUpdate(
-				"UPDATE mybox_client_files SET checksum=?, size=?, modified=?, version=?, deleted=?, sync_version=?, locked=? " +
+				"UPDATE mybox_client_files SET checksum=?, size=?, modified=?, version=?, deleted=?, is_deleted=?, sync_version=?, locked=? " +
 				"WHERE client=? AND filename=?",
 				checksum,
 				size,
 				modified,
 				version,
+				false,
 				false,
 				syncVersion,
 				locked,

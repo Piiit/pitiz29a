@@ -82,9 +82,11 @@ public class ClientFileIndexer extends FileIndexer {
 			}	
 
 			// Client file has been deleted before... perform a restore!
-			if(clientFileInfo.getValueAsBoolean("is_deleted")) {
-				onFilePreviouslyDeleted();
-			}
+//			boolean prevDeleted = false;
+//			if(clientFileInfo.getValueAsBoolean("is_deleted")) {
+//				onFilePreviouslyDeleted();
+//				prevDeleted = true;
+//			}
 			
 			//File changed locally, but new on server! (No need to check contents here)
 			if(serverFileInfo == null) {
@@ -97,19 +99,22 @@ public class ClientFileIndexer extends FileIndexer {
 			long clientVersion = clientFileInfo.getValueAsLong("version");
 			
 			//File changed locally...
-			if(fileContentChanged()) {
-				
-				clientVersion++;
+			if(serverFileInfo.getValueAsBoolean("deleted") || fileContentChanged()) {
 				
 				// Local file is in sync with server...
 				if(syncVersion == serverVersion) {
 					onFileUpdateServer();
+					clientVersion++;
 					return;
 				}
-				
+
+				//File deleted on server side, no conflicts due to unchanged file...
+				if(serverFileInfo.getValueAsBoolean("deleted") && !clientFileInfo.getValueAsBoolean("is_deleted") && clientVersion == syncVersion) {
+					return;
+				}
+
 				// Move local file, insert local file info with new name... do not insert the old filename, should be done by FileDownloader...
 				conflictHandling();
-
 			}
 
 			// Local file has not been changed since last sync
@@ -125,15 +130,12 @@ public class ClientFileIndexer extends FileIndexer {
 
 	}
 
-	private void onFilePreviouslyDeleted() throws Exception {
-		DatabaseTools.executeUpdate(
-				"UPDATE mybox_client_files SET deleted=?, is_deleted=? WHERE client=? AND filename=?",
-				false, false, clientId, myboxFilename);
-		
-		
-	}
-
 	private boolean fileContentChanged() throws Exception {
+		
+		//Previously deleted...
+		if(clientFileInfo.getValueAsBoolean("is_deleted")) {
+			return true;
+		}
 		
 		if(isFile()) {
 
@@ -141,12 +143,17 @@ public class ClientFileIndexer extends FileIndexer {
 				return true;
 			}
 			
+			//Now it is a file, but before it was a directory...
+			if(clientFileInfo.getValueAsString("checksum") == null) {
+				return true;
+			}
+			
 			if(!clientFileInfo.getValueAsDate("modified").equals(fileTimestamp)) {
 				
-				if(!checksum.equalsIgnoreCase(clientFileInfo.getValueAsString("checksum"))) {
+				if(checksum.equalsIgnoreCase(clientFileInfo.getValueAsString("checksum"))) {
 					DatabaseTools.executeUpdate(
-							"UPDATE mybox_client_files SET modified=? WHERE client=? AND filename=? AND locked=?",
-							fileTimestamp, clientId, myboxFilename, false);
+							"UPDATE mybox_client_files SET modified=?,checksum=? WHERE client=? AND filename=? AND locked=?",
+							fileTimestamp, checksum, clientId, myboxFilename, false);
 					Log.info("ClientFileIndexer: Only timestamps of file '" + myboxFilename + "' changed, updated...");
 					return false;
 				}
@@ -161,7 +168,7 @@ public class ClientFileIndexer extends FileIndexer {
 			DatabaseTools.executeUpdate(
 					"UPDATE mybox_client_files SET modified=? WHERE client=? AND filename=? AND locked=?",
 					fileTimestamp, clientId, myboxFilename, false);
-			Log.info("ClientFileIndexer: Only timestamps of file '" + myboxFilename + "' changed, updated...");
+			Log.info("ClientFileIndexer: Only timestamps of directory '" + myboxFilename + "' changed, updated...");
 		}
 		
 		return false;
@@ -171,7 +178,7 @@ public class ClientFileIndexer extends FileIndexer {
 	private void onFileUpdateClient() throws Exception {
 		Log.info("ClientFileIndexer: onFileUpdateClient: Downloading " + getTypeString() + " " + filename);
 		
-		long clientVersion = clientFileInfo.getValueAsLong("version");
+		long clientVersion = serverFileInfo.getValueAsLong("version");
 		if((isFile()  && !checksum.equalsIgnoreCase(clientFileInfo.getValueAsStringNotNull("checksum"))) || clientFileInfo.getValueAsBoolean("deleted")) {
 			clientVersion++;
 		}
@@ -190,13 +197,13 @@ public class ClientFileIndexer extends FileIndexer {
 		Log.info("ClientFileIndexer: onFileUpdateServer: " + filename);
 		
 		long clientVersion = clientFileInfo.getValueAsLong("version");
-		if((isFile()  && !checksum.equalsIgnoreCase(clientFileInfo.getValueAsStringNotNull("checksum"))) || clientFileInfo.getValueAsBoolean("deleted")) {
+//		if((isFile()  && !checksum.equalsIgnoreCase(clientFileInfo.getValueAsStringNotNull("checksum"))) || clientFileInfo.getValueAsBoolean("deleted")) {
 			clientVersion++;
-		}
+//		}
 
 		if(isFile()) {
 			MyBoxQueryTools.updateFile(clientId, myboxFilename, checksum, getFile().length(), fileTimestamp, clientVersion, clientVersion, false);
-			if(!checksum.equalsIgnoreCase(clientFileInfo.getValueAsStringNotNull("checksum"))) {
+			if(serverFileInfo.getValueAsBoolean("deleted") || !checksum.equalsIgnoreCase(clientFileInfo.getValueAsStringNotNull("checksum"))) {
 				FileClientSingle.uploadAsync(myboxFilename, clientId, getDirectory(), server, port);
 			}
 		} else {
@@ -204,6 +211,8 @@ public class ClientFileIndexer extends FileIndexer {
 		}
 		clientFileInfo = MyBoxQueryTools.getFileInfo(clientId, myboxFilename);
 		MyBoxQueryTools.updateServerEntryAndSyncVersion(clientFileInfo, serverFileInfo);
+		MyBoxQueryTools.unlockFile(myboxFilename, clientId);
+		MyBoxQueryTools.unlockFile(myboxFilename, MyBoxQueryTools.SERVERID);
 	}
 
 	private void onFileNotOnServer() throws Exception {
@@ -239,27 +248,31 @@ public class ClientFileIndexer extends FileIndexer {
 		
 		//Try to restore file info if checksums are equal...
 		if(checksum.equalsIgnoreCase(serverFileInfo.getValueAsString("checksum"))) {
-			Log.info("Restoring fileinfo of " + myboxFilename + " successful!");
+			Log.info("ClientFileIndexer: conflictHandling: Restoring fileinfo of " + myboxFilename + " successful!");
 			
-			//TODO What if entry already exists?
-			MyBoxQueryTools.insertFile(clientId, myboxFilename, checksum, getFile().length(), (Timestamp)serverFileInfo.getValue("modified"), serverFileInfo.getValueAsLong("version"), serverFileInfo.getValueAsLong("version"));
+			if(clientFileInfo == null) {
+				MyBoxQueryTools.insertFile(clientId, myboxFilename, checksum, getFile().length(), (Timestamp)serverFileInfo.getValue("modified"), serverFileInfo.getValueAsLong("version"), serverFileInfo.getValueAsLong("version"));
+			} else {
+				MyBoxQueryTools.updateFile(clientId, myboxFilename, checksum, getFile().length(), (Timestamp)serverFileInfo.getValue("modified"), serverFileInfo.getValueAsLong("version"), serverFileInfo.getValueAsLong("version"), false);
+			}
 			return;
 		}
 
 		//...CONFLICT... Trying to move to a new file...
-		Log.warn("New " + getTypeString() + " '" + myboxFilename + "' is out of sync. Different file exists on server with same name.");
+		Log.warn("ClientFileIndexer: conflictHandling: New " + getTypeString() + " '" + myboxFilename + "' is out of sync. Different file exists on server with same name.");
 		
 		// Move local file, insert local file info with new name... do not insert the old filename, should be done by FileDownloader...
 		String newFilenameExtension = "(OUT OF SYNC " + clientId + ")";
 		String newFilename = filename + newFilenameExtension ;
 		if(getFile().renameTo(new File(newFilename))) {
-			Log.info("File in conflict renamed to " + newFilename);
+			Log.info("ClientFileIndexer: conflictHandling: File in conflict renamed to " + newFilename);
 			MyBoxQueryTools.insertFile(clientId, myboxFilename + newFilenameExtension, checksum, getFile().length(), fileTimestamp, 0, 0);
 			FileClientSingle.uploadAsync(myboxFilename + newFilenameExtension, clientId, getDirectory(), server, port);
+			return;
 	    }
 		
-		Log.error("CONFLICT: Not possible to move " + getTypeString() + " " + filename + " to " + newFilename);
-		throw new Exception("Not possible to move " + getTypeString() + " " + filename);
+		Log.error("ClientFileIndexer: conflictHandling: CONFLICT: Not possible to move " + getTypeString() + " " + filename + " to " + newFilename);
+		throw new Exception("ClientFileIndexer: conflictHandling: Not possible to move " + getTypeString() + " " + filename);
 
 	}
 

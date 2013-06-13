@@ -71,10 +71,9 @@ public class FileDownloader extends DelayedInfiniteThread {
 						fileInfo.getValueAsLong("sync_version")
 						);
 			} else {
-				clientFileInfo.setValue("client", clientId);
-				MyBoxQueryTools.updateFileOrDirectoryAndLock(clientFileInfo);
+				fileInfo.setValue("client", clientId);
+				MyBoxQueryTools.updateFileOrDirectoryAndLock(fileInfo);
 			}
-			MyBoxQueryTools.lockFile(filename, clientId);
 			
 			//Directory found, if no checksum present...
 			if(fileInfo.getValueAsString("checksum") == null) {
@@ -83,11 +82,10 @@ public class FileDownloader extends DelayedInfiniteThread {
 				} else {
 					Log.error("FileDownloader: Can't create new folder '" + directory + filename + "'!");
 				}
+				MyBoxQueryTools.unlockFile(filename, clientId);
 			} else {
 				FileClientSingle.downloadAsync(filename, clientId, directory, server, port);
 			}
-			MyBoxQueryTools.unlockFile(filename, clientId);
-			
 		}
 	}
 
