@@ -81,13 +81,6 @@ public class ClientFileIndexer extends FileIndexer {
 				return;
 			}	
 
-			// Client file has been deleted before... perform a restore!
-//			boolean prevDeleted = false;
-//			if(clientFileInfo.getValueAsBoolean("is_deleted")) {
-//				onFilePreviouslyDeleted();
-//				prevDeleted = true;
-//			}
-			
 			//File changed locally, but new on server! (No need to check contents here)
 			if(serverFileInfo == null) {
 				onFileNotOnServer();
@@ -104,7 +97,6 @@ public class ClientFileIndexer extends FileIndexer {
 				// Local file is in sync with server...
 				if(syncVersion == serverVersion) {
 					onFileUpdateServer();
-					clientVersion++;
 					return;
 				}
 
